@@ -124,25 +124,25 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\Resource\NewScene.xml">
-      <Filter>Resource Files</Filter>
-    </Xml>
-    <Xml Include="..\Resource\BoxScene.xml">
-      <Filter>Resource Files</Filter>
-    </Xml>
-    <Xml Include="..\Resource\BoxSceneForReflection.xml">
-      <Filter>Resource Files</Filter>
-    </Xml>
-    <Xml Include="..\Resource\SampleTest.xml">
-      <Filter>Resource Files</Filter>
-    </Xml>
-    <Xml Include="..\Resource\CornellBoxScene.xml">
-      <Filter>Resource Files</Filter>
-    </Xml>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Time\TimeHelper.inl">
       <Filter>Time</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\Assets\BoxScene.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+    <Xml Include="..\Assets\BoxSceneForReflection.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+    <Xml Include="..\Assets\CornellBoxScene.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+    <Xml Include="..\Assets\NewScene.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+    <Xml Include="..\Assets\SampleTest.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

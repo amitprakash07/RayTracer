@@ -64,11 +64,15 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 						if (NORMALINTERPOLATE)
 						{
 							P = alpha*vertexA + beta*vertexB + gamma*vertexC;
-							faceNormalNormalized = GetNormal(faceID, P).GetNormalized();
+							faceNormalNormalized = GetNormal(faceID, Point3(alpha,beta,gamma));
 						}
 						
 						hInfo.p = P;
+#ifdef RELEASE_DEBUG
+						hInfo.N = Point3(beta, gamma, alpha);
+#else
 						hInfo.N = faceNormalNormalized;
+#endif
 						hInfo.z = t;
 						if (ray.dir.Dot(hInfo.N) > 0)
 							hInfo.front = true;

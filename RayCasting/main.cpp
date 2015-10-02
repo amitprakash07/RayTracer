@@ -5,7 +5,7 @@
 #include "RayIntersection.h"
 #include "LightColor.h"
 
-#define LOAD_FILE "../Resource/CornellBoxScene.xml"
+#define LOAD_FILE "../Assets/CornellBoxScene.xml"
 
 extern Camera camera;
 bool TraceRay(Node *i_node, Ray &ray, HitInfo &hInfo, int hitside = HIT_FRONT);
@@ -56,9 +56,12 @@ int main(void)
 			
 			if (TraceRay(&rootNode, pixelRay, hitInfo))
 			{
-				//hitInfo.node->FromNodeCoords(hitInfo);
+#ifdef  RELEASE_DEBUG
 				temp_image[i*camera.imgWidth + j] = normalColor(hitInfo);
-				//temp_image[i*camera.imgWidth + j] = hitInfo.node->GetMaterial()->Shade(pixelRay, hitInfo, lights,7);
+#else
+				temp_image[i*camera.imgWidth + j] = hitInfo.node->GetMaterial()->Shade(pixelRay, hitInfo, lights, 7);
+#endif
+				
 				temp_zBuffer[i*camera.imgWidth + j] = hitInfo.z;
 			}
 			else
