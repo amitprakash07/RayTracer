@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="TinyXML">
+      <UniqueIdentifier>{b33bea88-480a-4066-b1fb-8dd6671348f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OpenGL">
+      <UniqueIdentifier>{31b16745-a478-4788-8d11-df8d862bd187}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CyBase">
+      <UniqueIdentifier>{d645f230-7cb7-4085-9627-49069d9e8480}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Time">
+      <UniqueIdentifier>{b3615859-f0fb-4060-b171-ac9c4d038594}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cyColor">
+      <UniqueIdentifier>{f5d1f684-137f-46d9-8817-de61dd543bcd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lights">
+      <UniqueIdentifier>{e1fec180-a0bc-4d4e-8c93-a20b2e8d1536}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Scene">
+      <UniqueIdentifier>{9d348a79-2836-4fc6-94f9-af3e22ae6150}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="View">
+      <UniqueIdentifier>{5dbb5023-68a2-4b7f-b7f7-50d5ae06c9a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Intersection">
+      <UniqueIdentifier>{7bcf65fa-d391-42ee-b00f-6f15ae2feff3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="viewport.cpp">
+      <Filter>OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinyxml.cpp">
+      <Filter>TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="tinyxml\tinystr.cpp">
+      <Filter>TinyXML</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Time\FrameTime.cpp">
+      <Filter>Time</Filter>
+    </ClCompile>
+    <ClCompile Include="xmlload.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="Lights.cpp">
+      <Filter>Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="TriangleIntersection.cpp">
+      <Filter>Intersection</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereIntersection.cpp">
+      <Filter>Intersection</Filter>
+    </ClCompile>
+    <ClCompile Include="PlaneIntersection.cpp">
+      <Filter>Intersection</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxIntersection.cpp">
+      <Filter>Intersection</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="cyPoint-1\cyPoint.h">
+      <Filter>CyBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyMatrix-1\cyMatrix2.h">
+      <Filter>CyBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyMatrix-1\cyMatrix3.h">
+      <Filter>CyBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyMatrix-1\cyMatrix4.h">
+      <Filter>CyBase</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinyxml.h">
+      <Filter>TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinystr.h">
+      <Filter>TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h" />
+    <ClInclude Include="Time\FrameTime.h">
+      <Filter>Time</Filter>
+    </ClInclude>
+    <ClInclude Include="Time\TimeHelper.h">
+      <Filter>Time</Filter>
+    </ClInclude>
+    <ClInclude Include="cyColor.h">
+      <Filter>cyColor</Filter>
+    </ClInclude>
+    <ClInclude Include="xmlload.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="objects.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="viewport.h">
+      <Filter>View</Filter>
+    </ClInclude>
+    <ClInclude Include="materials.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="lights.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="LightColor.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="RayIntersection.h">
+      <Filter>Intersection</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\Resource\NewScene.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+    <Xml Include="..\Resource\BoxScene.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+    <Xml Include="..\Resource\BoxSceneForReflection.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+    <Xml Include="..\Resource\SampleTest.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+    <Xml Include="..\Resource\CornellBoxScene.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Time\TimeHelper.inl">
+      <Filter>Time</Filter>
+    </None>
+  </ItemGroup>
+</Project>
