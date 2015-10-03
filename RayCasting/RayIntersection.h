@@ -11,7 +11,7 @@ inline bool TraceRay(Node * i_node, Ray &ray, HitInfo &hInfo, int hitside)
 {
 	bool isHit = false;
 	Ray transformedRay = i_node->ToNodeCoords(ray);
-	float preHInfo =  hInfo.z;
+	
 	if (i_node->GetNodeObj() != nullptr)
 	{
 		isHit = i_node->GetNodeObj()->IntersectRay(transformedRay, hInfo, hitside);

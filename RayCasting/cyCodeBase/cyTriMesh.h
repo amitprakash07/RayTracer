@@ -20,7 +20,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <vector>
-#include "cyPoint-1/cyPoint.h"
+#include "cyPoint.h"
 
 
 //-------------------------------------------------------------------------------

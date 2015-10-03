@@ -14,9 +14,6 @@
 # User settings for a project
 *.vcxproj.user
 
-*.tlog
-*.obj
-*.exe
 
 # Intellisense
 *.sdf

@@ -11,14 +11,8 @@
     <Filter Include="OpenGL">
       <UniqueIdentifier>{31b16745-a478-4788-8d11-df8d862bd187}</UniqueIdentifier>
     </Filter>
-    <Filter Include="CyBase">
-      <UniqueIdentifier>{d645f230-7cb7-4085-9627-49069d9e8480}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Time">
       <UniqueIdentifier>{b3615859-f0fb-4060-b171-ac9c4d038594}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="cyColor">
-      <UniqueIdentifier>{f5d1f684-137f-46d9-8817-de61dd543bcd}</UniqueIdentifier>
     </Filter>
     <Filter Include="Lights">
       <UniqueIdentifier>{e1fec180-a0bc-4d4e-8c93-a20b2e8d1536}</UniqueIdentifier>
@@ -31,6 +25,9 @@
     </Filter>
     <Filter Include="Intersection">
       <UniqueIdentifier>{7bcf65fa-d391-42ee-b00f-6f15ae2feff3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="cyCodeBase">
+      <UniqueIdentifier>{2d9d4027-0601-4ec0-b0f3-62eacc910d0f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -68,20 +65,11 @@
     <ClCompile Include="BoxIntersection.cpp">
       <Filter>Intersection</Filter>
     </ClCompile>
+    <ClCompile Include="BVHTraversal.cpp">
+      <Filter>Intersection</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="cyPoint-1\cyPoint.h">
-      <Filter>CyBase</Filter>
-    </ClInclude>
-    <ClInclude Include="cyMatrix-1\cyMatrix2.h">
-      <Filter>CyBase</Filter>
-    </ClInclude>
-    <ClInclude Include="cyMatrix-1\cyMatrix3.h">
-      <Filter>CyBase</Filter>
-    </ClInclude>
-    <ClInclude Include="cyMatrix-1\cyMatrix4.h">
-      <Filter>CyBase</Filter>
-    </ClInclude>
     <ClInclude Include="tinyxml\tinyxml.h">
       <Filter>TinyXML</Filter>
     </ClInclude>
@@ -94,9 +82,6 @@
     </ClInclude>
     <ClInclude Include="Time\TimeHelper.h">
       <Filter>Time</Filter>
-    </ClInclude>
-    <ClInclude Include="cyColor.h">
-      <Filter>cyColor</Filter>
     </ClInclude>
     <ClInclude Include="xmlload.h">
       <Filter>Scene</Filter>
@@ -121,6 +106,24 @@
     </ClInclude>
     <ClInclude Include="RayIntersection.h">
       <Filter>Intersection</Filter>
+    </ClInclude>
+    <ClInclude Include="cyColor.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyMatrix-1\cyMatrix2.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyMatrix-1\cyMatrix3.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyMatrix-1\cyMatrix4.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyPoint-1\cyPoint.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyBVH.h">
+      <Filter>cyCodeBase</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

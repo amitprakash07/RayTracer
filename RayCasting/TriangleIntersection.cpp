@@ -2,26 +2,30 @@
 #include <iostream>
 
 #define NORMALINTERPOLATE 1
-#define TRIANGLEBIAS (2000* FLT_EPSILON)
+#define SHOW_NORMAL 0
+#define TRIANGLEBIAS (2000 * FLT_EPSILON)
 
 typedef cyTriMesh::cyTriFace MeshIndices;
 
 bool TriObj::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 {
 	//std::cout << NF()<<std::endl;
-	
 	bool isHit = false;
-	for (size_t i = 0; i < NF(); i++)
+	if (GetBoundBox().IntersectRay(ray, hInfo.z))
 	{
-		//cyTriFace f = F(i);
-		//std::cout << f.v[0]<<"/"<<f.v[1]<<"/"<<f.v[2]<<std::endl;
-		isHit = IntersectTriangle(ray, hInfo, hitSide, i);
-		if (isHit)
-			break;
+		//isHit = TraceBVHNode(ray, hInfo, hitSide, bvh.GetRootNodeID());
+		for (size_t i = 0; i < NF(); i++)
+		{
+			//cyTriFace f = F(i);
+			//std::cout << f.v[0]<<"/"<<f.v[1]<<"/"<<f.v[2]<<std::endl;
+			isHit = IntersectTriangle(ray, hInfo, hitSide, i);
+			if (isHit)
+				break;
+		}
 	}
-	
 	return isHit;
 }
+
 
 bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsigned faceID) const
 {
@@ -39,8 +43,11 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 	//float D = vertexA.Dot(faceNormal);
 	
 	t = -(ray.p - vertexA).Dot(faceNormalNormalized) / ray.dir.Dot(faceNormalNormalized);
+	
+	if ((ray.p - vertexA).Dot(faceNormalNormalized) == 0)
+		return false;
 
-	if (t > TRIANGLEBIAS && t < hInfo.z && hitSide == HIT_FRONT)
+	if (t >= TRIANGLEBIAS && t < hInfo.z && hitSide == HIT_FRONT)
 	{
 		Point3 P = ray.p + t * ray.dir;
 		
@@ -69,14 +76,19 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 						
 						hInfo.p = P;
 #ifdef RELEASE_DEBUG
-						hInfo.N = Point3(beta, gamma, alpha);
+						if (SHOW_NORMAL)
+							hInfo.N = faceNormalNormalized;
+						else
+							hInfo.N = Point3(beta, gamma, alpha);
 #else
 						hInfo.N = faceNormalNormalized;
 #endif
 						hInfo.z = t;
-						if (ray.dir.Dot(hInfo.N) > 0)
+
+						if (ray.dir.Dot(hInfo.N) > TRIANGLEBIAS)
 							hInfo.front = true;
 						else  hInfo.front = false;
+
 						ishit = true;
 					}
 				}
@@ -108,7 +120,7 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 						if (NORMALINTERPOLATE)
 						{
 							P = alpha*vertexA + beta*vertexB + gamma*vertexB;
-							faceNormalNormalized = GetNormal(faceID, P);
+							faceNormalNormalized = GetNormal(faceID, Point3(alpha,beta,gamma));
 						}
 						hInfo.p = P;
 						hInfo.N = GetNormal(faceID, P);;

@@ -20,15 +20,15 @@
 
 #include <vector>
 
-#include "cyPoint-1/cyPoint.h"
+#include "cyCodeBase/cyPoint.h"
 typedef cyPoint2f Point2;
 typedef cyPoint3f Point3;
 typedef cyPoint4f Point4;
 
-#include "cyMatrix-1/cyMatrix3.h"
+#include "cyCodeBase/cyMatrix3.h"
 typedef cyMatrix3f Matrix3;
 
-#include "cyColor.h"
+#include "cyCodeBase/cyColor.h"
 typedef cyColor Color;
 typedef cyColorA ColorA;
 typedef cyColor24 Color24;
