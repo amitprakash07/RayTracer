@@ -12,7 +12,7 @@ bool TriObj::TraceBVHNode(const Ray& ray, HitInfo& hInfo, int hitSide, unsigned 
 
 			for (int i = 0; i < noOfFacesInLeafNode; i++)
 			{
-				isHit = IntersectTriangle(ray, hInfo, hitSide, bvh.GetNodeElements(nodeID)[i]);
+				isHit |= IntersectTriangle(ray, hInfo, hitSide, bvh.GetNodeElements(nodeID)[i]);
 			}
 		}
 	}

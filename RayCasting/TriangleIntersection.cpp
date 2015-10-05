@@ -2,7 +2,7 @@
 #include <iostream>
 
 #define NORMALINTERPOLATE 1
-#define SHOW_NORMAL 0
+#define SHOW_NORMAL 1
 #define TRIANGLEBIAS (2000 * FLT_EPSILON)
 
 typedef cyTriMesh::cyTriFace MeshIndices;
@@ -13,15 +13,11 @@ bool TriObj::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 	bool isHit = false;
 	if (GetBoundBox().IntersectRay(ray, hInfo.z))
 	{
-		//isHit = TraceBVHNode(ray, hInfo, hitSide, bvh.GetRootNodeID());
-		for (size_t i = 0; i < NF(); i++)
+		isHit = TraceBVHNode(ray, hInfo, hitSide, bvh.GetRootNodeID());
+		/*for (size_t i = 0; i < NF(); i++)
 		{
-			//cyTriFace f = F(i);
-			//std::cout << f.v[0]<<"/"<<f.v[1]<<"/"<<f.v[2]<<std::endl;
-			isHit = IntersectTriangle(ray, hInfo, hitSide, i);
-			if (isHit)
-				break;
-		}
+			isHit |= IntersectTriangle(ray, hInfo, hitSide, i);
+		}*/
 	}
 	return isHit;
 }
@@ -123,8 +119,14 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 							faceNormalNormalized = GetNormal(faceID, Point3(alpha,beta,gamma));
 						}
 						hInfo.p = P;
-						hInfo.N = GetNormal(faceID, P);;
-						hInfo.z = t;
+#ifdef RELEASE_DEBUG
+						if (SHOW_NORMAL)
+							hInfo.N = faceNormalNormalized;
+						else
+							hInfo.N = Point3(beta, gamma, alpha);
+#else
+						hInfo.N = faceNormalNormalized;
+#endif
 						if (ray.dir.Dot(hInfo.N) > 0)
 							hInfo.front = true;
 						else  hInfo.front = false;

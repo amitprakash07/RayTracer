@@ -61,7 +61,6 @@ int main(void)
 #else
 				temp_image[i*camera.imgWidth + j] = hitInfo.node->GetMaterial()->Shade(pixelRay, hitInfo, lights, 7);
 #endif
-				
 				temp_zBuffer[i*camera.imgWidth + j] = hitInfo.z;
 			}
 			else
