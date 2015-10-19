@@ -6,7 +6,7 @@
 #include "LightColor.h"
 
 #define LOAD_FILE "../Assets/CornellBoxScene.xml"
-
+//#define LOAD_FILE "XMLFile.xml"
 extern Camera camera;
 bool TraceRay(Node *i_node, Ray &ray, HitInfo &hInfo, int hitside = HIT_FRONT);
 

@@ -36,8 +36,6 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 	
 	normal = (vertexB - vertexA).Cross(vertexC - vertexA);
 	faceNormalNormalized = normal.GetNormalized();
-	//float D = vertexA.Dot(faceNormal);
-	
 	t = -(ray.p - vertexA).Dot(faceNormalNormalized) / ray.dir.Dot(faceNormalNormalized);
 	
 	if ((ray.p - vertexA).Dot(faceNormalNormalized) == 0)
@@ -46,52 +44,42 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 	if (t >= TRIANGLEBIAS && t < hInfo.z && hitSide == HIT_FRONT)
 	{
 		Point3 P = ray.p + t * ray.dir;
-		
+
 		float totalArea = normal.Length() / 2;
-		
 		float areaA = (vertexB - P).Cross(vertexC - P).Dot(faceNormalNormalized) / 2;
-
-		if (areaA > 0)
+		float areaB = (vertexC - P).Cross(vertexA - P).Dot(faceNormalNormalized) / 2;
+		float areaC = (vertexA - P).Cross(vertexB - P).Dot(faceNormalNormalized) / 2;
+		float alpha = areaA / totalArea;
+		float beta = areaB / totalArea;
+		float gamma = areaC / totalArea;
+		if (alpha >= 0 && alpha <= 1 && beta >= 0 && beta <= 1 && gamma >= 0 && gamma <= 1)
 		{
-			float areaB = (vertexC - P).Cross(vertexA - P).Dot(faceNormalNormalized) / 2;
-			if (areaB > 0)
+			if (NORMALINTERPOLATE)
 			{
-				float areaC = (vertexA - P).Cross(vertexB - P).Dot(faceNormalNormalized) / 2;
-				if (areaC > 0)
-				{
-					float alpha = areaA / totalArea;
-					float beta = areaB / totalArea;
-					float gamma = areaC / totalArea;
-					if (alpha >= 0 && alpha <= 1 && beta >= 0 && beta <= 1 && gamma >= 0 && gamma <= 1)
-					{
-						if (NORMALINTERPOLATE)
-						{
-							P = alpha*vertexA + beta*vertexB + gamma*vertexC;
-							faceNormalNormalized = GetNormal(faceID, Point3(alpha,beta,gamma));
-						}
-						
-						hInfo.p = P;
-#ifdef RELEASE_DEBUG
-						if (SHOW_NORMAL)
-							hInfo.N = faceNormalNormalized;
-						else
-							hInfo.N = Point3(beta, gamma, alpha);
-#else
-						hInfo.N = faceNormalNormalized;
-#endif
-						hInfo.z = t;
-
-						if (ray.dir.Dot(hInfo.N) > TRIANGLEBIAS)
-							hInfo.front = true;
-						else  hInfo.front = false;
-
-						ishit = true;
-					}
-				}
+				P = alpha*vertexA + beta*vertexB + gamma*vertexC;
+				faceNormalNormalized = GetNormal(faceID, Point3(alpha, beta, gamma));
 			}
-		}
 
+			hInfo.p = P;
+#ifdef RELEASE_DEBUG
+			if (SHOW_NORMAL)
+				hInfo.N = faceNormalNormalized;
+			else
+				hInfo.N = Point3(beta, gamma, alpha);
+#else
+			hInfo.N = faceNormalNormalized;
+#endif
+			hInfo.z = t;
+
+			if (ray.dir.Dot(hInfo.N) > TRIANGLEBIAS)
+				hInfo.front = true;
+			else  hInfo.front = false;
+
+			ishit = true;
+		}		
 	}
+
+	
 
 	
 	if (t >= TRIANGLEBIAS && t > hInfo.z && hitSide == HIT_BACK)
@@ -99,41 +87,34 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 		Point3 P = ray.p + t * ray.dir;
 		float totalArea = normal.Length() / 2;
 		float areaA = (vertexB - P).Cross(vertexC - P).Dot(faceNormalNormalized) / 2;
-
-		if (areaA > 0)
+		float areaB = (vertexC - P).Cross(vertexA - P).Dot(faceNormalNormalized) / 2;
+		float areaC = (vertexA - P).Cross(vertexB - P).Dot(faceNormalNormalized) / 2;
+		float alpha = areaA / totalArea;
+		float beta = areaB / totalArea;
+		float gamma = areaC / totalArea;
+		if (alpha >= 0 && alpha <= 1 && beta >= 0 && beta <= 1 && gamma >= 0 && gamma <= 1)
 		{
-			float areaB = (vertexC - P).Cross(vertexA - P).Dot(faceNormalNormalized) / 2;
-			if (areaB > 0)
+			if (NORMALINTERPOLATE)
 			{
-				float areaC = (vertexA - P).Cross(vertexB - P).Dot(faceNormalNormalized) / 2;
-				if (areaC > 0)
-				{
-					float alpha = areaA / totalArea;
-					float beta = areaB / totalArea;
-					float gamma = areaC / totalArea;
-					if (alpha >= 0 && alpha <= 1 && beta >= 0 && beta <= 1 && gamma >= 0 && gamma <= 1)
-					{
-						if (NORMALINTERPOLATE)
-						{
-							P = alpha*vertexA + beta*vertexB + gamma*vertexB;
-							faceNormalNormalized = GetNormal(faceID, Point3(alpha,beta,gamma));
-						}
-						hInfo.p = P;
-#ifdef RELEASE_DEBUG
-						if (SHOW_NORMAL)
-							hInfo.N = faceNormalNormalized;
-						else
-							hInfo.N = Point3(beta, gamma, alpha);
-#else
-						hInfo.N = faceNormalNormalized;
-#endif
-						if (ray.dir.Dot(hInfo.N) > 0)
-							hInfo.front = true;
-						else  hInfo.front = false;
-						ishit = true;
-					}
-				}
+				P = alpha*vertexA + beta*vertexB + gamma*vertexB;
+				faceNormalNormalized = GetNormal(faceID, Point3(alpha, beta, gamma));
 			}
+			hInfo.p = P;
+#ifdef RELEASE_DEBUG
+			if (SHOW_NORMAL)
+				hInfo.N = faceNormalNormalized;
+			else
+				hInfo.N = Point3(beta, gamma, alpha);
+#else
+			hInfo.N = faceNormalNormalized;
+#endif
+			if (ray.dir.Dot(hInfo.N) > 0)
+				hInfo.front = true;
+			else  hInfo.front = false;
+			ishit = true;
+
+
+
 		}
 	}
 

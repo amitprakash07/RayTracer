@@ -284,6 +284,7 @@
     <Xml Include="..\Assets\CornellBoxScene.xml" />
     <Xml Include="..\Assets\NewScene.xml" />
     <Xml Include="..\Assets\SampleTest.xml" />
+    <Xml Include="XMLFile.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

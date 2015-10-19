@@ -147,5 +147,8 @@
     <Xml Include="..\Assets\SampleTest.xml">
       <Filter>Resource Files</Filter>
     </Xml>
+    <Xml Include="XMLFile.xml">
+      <Filter>Resource Files</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

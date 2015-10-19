@@ -32,7 +32,7 @@ bool Sphere::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 			hInfo.z = t2;
 			hInfo.p = ray.p + hInfo.z* ray.dir;
 			hInfo.N = (hInfo.p - Point3(0.0f, 0.0f, 0.0f)).GetNormalized();
-			hInfo.front = true;;
+			hInfo.front = true;
 		}
 
 		if ((t1 > BIAS) && (t1 < hInfo.z))

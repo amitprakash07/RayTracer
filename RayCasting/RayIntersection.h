@@ -27,13 +27,17 @@ inline bool TraceRay(Node * i_node, Ray &ray, HitInfo &hInfo, int hitside)
 		for (int i = 0; i < i_node->GetNumChild(); i++)
 		{
 			Node * childNode = i_node->GetChild(i);
-			bool tempHit = TraceRay(childNode, transformedRay, hInfo, hitside);
-			if(tempHit)
+			if (i_node->GetChildBoundBox().IntersectRay(ray, hInfo.z))
 			{
-				i_node->FromNodeCoords(hInfo);
+				bool tempHit = TraceRay(childNode, transformedRay, hInfo, hitside);
+				if (tempHit)
+				{
+					i_node->FromNodeCoords(hInfo);
+				}
+				isHit |= tempHit;
 			}
-
-			isHit |= tempHit;
+			else 
+				isHit = false;
 		}
 	}
 	
