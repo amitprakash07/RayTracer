@@ -1,7 +1,9 @@
 #include "materials.h"
 #include "RayIntersection.h"
 #include <iostream>
+#include "LightColor.h"
 extern Node rootNode;
+extern TexturedColor environment;
 
 Point3 getRefractionVector(Point3 view, Point3 normal, float n1 = 1, float n2 = 1);
 Point3 getReflectionVector(Point3 view, Point3 normal);
@@ -22,17 +24,17 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 	{
 		if (lights[i]->IsAmbient())
 		{
-			ambientComp += ambientComponent(lights[i], hInfo, diffuse);
+			ambientComp += ambientComponent(lights[i], hInfo, diffuse.Sample(hInfo.uvw));
 		}
 		else
 		{
-			diffuseComp += diffuseComponent(lights[i], hInfo, diffuse);
-			specularComp += specularComponent(lights[i], viewDirection, hInfo, specular, glossiness);
+			diffuseComp += diffuseComponent(lights[i], hInfo, diffuse.Sample(hInfo.uvw));
+			specularComp += specularComponent(lights[i], viewDirection, hInfo, specular.Sample(hInfo.uvw), glossiness);
 
 		}
 	}
 			/************************Refraction************************************************************/
-			if(refraction != noColor && bounceCount > 0)
+			if(refraction.Sample(hInfo.uvw) != noColor && bounceCount > 0)
 			{
 				Ray refractionRay;
 				HitInfo refractionRayHit;
@@ -49,15 +51,14 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 					//hitside = HIT_BACK;
 				}
 				
-
 				if(TraceRay(&rootNode, refractionRay, refractionRayHit, hitside))
 				{
-
 					refractiveComp = refractionRayHit.node->GetMaterial()->Shade(refractionRay, refractionRayHit, lights, --bounceCount);
-
-					//refractiveComp += refractionRayHit.node->GetMaterial()->Shade(refractionRay, refractionRayHit, lights, --bounceCount);
-
-				}				
+				}
+				else
+				{
+					
+				}
 				
 			}
 
@@ -70,7 +71,7 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 			//refractionTotal = (1 - ratioOfRefraction)*refraction;
 			///*******************************************************************************************/
 			//refractiveComp *= refractionTotal; //It = (1-R) * KT'
-			reflectionTotal += reflection; //Doing outside in case refraction didn't occured at all
+			reflectionTotal += reflection.Sample(hInfo.uvw); //Doing outside in case refraction didn't occured at all
 
 			/*********************************************************************************************/
 
@@ -87,6 +88,10 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 					bounceCount--;
 					fromReflection = reflectionRayHit.node->GetMaterial()->Shade(reflectionViewVector, reflectionRayHit, lights, bounceCount);
 					reflectiveComp = reflectionTotal * fromReflection;
+				}
+				else
+				{
+					environment.SampleEnvironment(reflectionViewVector.dir);
 				}
 			}
 			/****************************************************************************************************/

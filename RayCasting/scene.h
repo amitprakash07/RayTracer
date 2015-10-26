@@ -2,8 +2,8 @@
 ///
 /// \file       scene.h 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    5.0
-/// \date       September 24, 2015
+/// \version    8.0
+/// \date       October 19, 2015
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
@@ -14,21 +14,25 @@
 
 //-------------------------------------------------------------------------------
 
+#define TEXTURE_SAMPLE_COUNT 32
+
+//-------------------------------------------------------------------------------
+
 #include <string.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 
 #include <vector>
 
-#include "cyCodeBase/cyPoint.h"
+#include "cyPoint.h"
 typedef cyPoint2f Point2;
 typedef cyPoint3f Point3;
 typedef cyPoint4f Point4;
 
-#include "cyCodeBase/cyMatrix3.h"
+#include "cyMatrix3.h"
 typedef cyMatrix3f Matrix3;
 
-#include "cyCodeBase/cyColor.h"
+#include "cyColor.h"
 typedef cyColor Color;
 typedef cyColorA ColorA;
 typedef cyColor24 Color24;
@@ -120,6 +124,19 @@ public:
 
 //-------------------------------------------------------------------------------
 
+inline float Halton(int index, int base)
+{
+	float r = 0;
+	float f = 1.0f / (float)base;
+	for ( int i=index; i>0; i/=base ) {
+		r += f * (i%base);
+		f /= (float) base;
+	}
+	return r;
+}
+
+//-------------------------------------------------------------------------------
+
 class Node;
 
 #define HIT_NONE			0
@@ -132,12 +149,14 @@ struct HitInfo
 	float z;			// the distance from the ray center to the hit point
 	Point3 p;			// position of the hit point
 	Point3 N;			// surface normal at the hit point
+	Point3 uvw;			// texture coordinate at the hit point
+	Point3 duvw[2];		// derivatives of the texture coordinate
 	const Node *node;	// the object node that was hit
 	bool front;			// true if the ray hits the front side, false if the ray hits the back side
 	int mtlID;			// sub-material index
 
 	HitInfo() { Init(); }
-	void Init() { z=BIGFLOAT; node=NULL; front=true; mtlID=0; }
+	void Init() { z=BIGFLOAT; node=NULL; front=true; uvw.Set(0.5f,0.5f,0.5f); duvw[0].Zero(); duvw[1].Zero(); mtlID=0; }
 };
 
 //-------------------------------------------------------------------------------
@@ -172,20 +191,12 @@ public:
 };
 
 
-template <class T> 
-class ItemFileList
+template <class T> class ItemFileList
 {
 public:
 	void Clear() { list.DeleteAll(); }
 	void Append( T* item, const char *name ) { list.push_back( new FileInfo(item,name) ); }
-	T* Find( const char *name ) const
-	{
-		int n=list.size(); 
-		for ( int i=0; i<n; i++ ) 
-			if ( list[i] && strcmp(name,list[i]->GetName())==0 ) 
-				return list[i]->GetObj(); 
-		return NULL;
-	}
+	T* Find( const char *name ) const { int n=list.size(); for ( int i=0; i<n; i++ ) if ( list[i] && strcmp(name,list[i]->GetName())==0 ) return list[i]->GetObj(); return NULL; }
 
 private:
 	class FileInfo : public ItemBase
@@ -296,6 +307,122 @@ public:
 
 //-------------------------------------------------------------------------------
 
+class Texture : public ItemBase
+{
+public:
+	// Evaluates the color at the given uvw location.
+	virtual Color Sample(const Point3 &uvw) const=0;
+
+	// Evaluates the color around the given uvw location using the derivatives duvw
+	// by calling the Sample function multiple times.
+	virtual Color Sample(const Point3 &uvw, const Point3 duvw[2], bool elliptic=true) const
+	{
+		Color c = Sample(uvw);
+		if ( duvw[0].LengthSquared() + duvw[1].LengthSquared() == 0 ) return c;
+		for ( int i=1; i<TEXTURE_SAMPLE_COUNT; i++ ) {
+			float x = Halton(i,2);
+			float y = Halton(i,3);
+			if ( elliptic ) {
+				float r = sqrtf(x)*0.5f;
+				x = r*sinf(y*(float)M_PI*2);
+				y = r*cosf(y*(float)M_PI*2);
+			} else {
+				if ( x > 0.5f ) x-=1;
+				if ( y > 0.5f ) y-=1;
+			}
+			c += Sample( uvw + x*duvw[0] + y*duvw[1] );
+		}
+		return c / float(TEXTURE_SAMPLE_COUNT);
+	}
+
+	virtual bool SetViewportTexture() const { return false; }	// used for OpenGL display
+
+protected:
+
+	// Clamps the uvw values for tiling textures, such that all values fall between 0 and 1.
+	static Point3 TileClamp(const Point3 &uvw)
+	{
+		Point3 u;
+		u.x = uvw.x - (int) uvw.x;
+		u.y = uvw.y - (int) uvw.y;
+		u.z = uvw.z - (int) uvw.z;
+		if ( u.x < 0 ) u.x += 1;
+		if ( u.y < 0 ) u.y += 1;
+		if ( u.z < 0 ) u.z += 1;
+		return u;
+	}
+};
+
+typedef ItemFileList<Texture> TextureList;
+
+//-------------------------------------------------------------------------------
+
+// This class handles textures with texture transformations.
+// The uvw values passed to the Sample methods are transformed
+// using the texture transformation.
+class TextureMap : public Transformation
+{
+public:
+	TextureMap() : texture(NULL) {}
+	TextureMap(Texture *tex) : texture(tex) {}
+	void SetTexture(Texture *tex) { texture = tex; }
+
+	virtual Color Sample(const Point3 &uvw) const { return texture ? texture->Sample(TransformTo(uvw)) : Color(0,0,0); }
+	virtual Color Sample(const Point3 &uvw, const Point3 duvw[2], bool elliptic=true) const
+	{
+		if ( texture == NULL ) return Color(0,0,0);
+		Point3 u = TransformTo(uvw);
+		Point3 d[2];
+		d[0] = TransformTo(duvw[0]+uvw)-u;
+		d[1] = TransformTo(duvw[1]+uvw)-u;
+		return texture->Sample(u,d,elliptic);
+	}
+
+	bool SetViewportTexture() const { if ( texture ) return texture->SetViewportTexture(); return false; }	// used for OpenGL display
+
+private:
+	Texture *texture;
+};
+
+//-------------------------------------------------------------------------------
+
+// This class keeps a TextureMap and a color. This is useful for keeping material
+// color parameters that can also be textures. If no texture is specified, it
+// automatically uses the color value. Otherwise, the texture value is multiplied
+// by the color value.
+class TexturedColor
+{
+private:
+	Color color;
+	TextureMap *map;
+public:
+	TexturedColor() : color(0,0,0), map(NULL) {}
+	TexturedColor(float r, float g, float b) : color(r,g,b), map(NULL) {}
+	virtual ~TexturedColor() { if ( map ) delete map; }
+
+	void SetColor(const Color &c) { color=c; }
+	void SetTexture(TextureMap *m) { if ( map ) delete map; map=m; }
+
+	Color GetColor() const { return color; }
+	const TextureMap* GetTexture() const { return map; }
+
+	Color Sample(const Point3 &uvw) const { return ( map ) ? color*map->Sample(uvw) : color; }
+	Color Sample(const Point3 &uvw, const Point3 duvw[2], bool elliptic=true) const { return ( map ) ? color*map->Sample(uvw,duvw,elliptic) : color; }
+
+	// Returns the color value at the given direction for environment mapping.
+	Color SampleEnvironment(const Point3 &dir) const
+	{ 
+		float z = asinf(-dir.z)/float(M_PI)+0.5f;
+		float den = sqrtf(dir.x*dir.x + dir.y*dir.y)+1e-10f;
+		float x = dir.x / den;
+		float y = dir.y / den;
+		return Sample( Point3(0.5f,0.5f,0.0f) + z*(x*Point3(0.5f,0.5f,0) + y*Point3(-0.5f,0.5f,0)) );
+	}
+
+};
+
+//-------------------------------------------------------------------------------
+
 class Node : public ItemBase, public Transformation
 {
 private:
@@ -402,10 +529,12 @@ private:
 	Color24	*img;
 	float	*zbuffer;
 	uchar	*zbufferImg;
+	uchar	*sampleCount;
+	uchar	*sampleCountImg;
 	int		width, height;
 	int		numRenderedPixels;
 public:
-	RenderImage() : img(NULL), zbuffer(NULL), zbufferImg(NULL), width(0), height(0), numRenderedPixels(0) {}
+	RenderImage() : img(NULL), zbuffer(NULL), zbufferImg(NULL), sampleCount(NULL), sampleCountImg(NULL), width(0), height(0), numRenderedPixels(0) {}
 	void Init(int w, int h)
 	{
 		width=w;
@@ -416,6 +545,10 @@ public:
 		zbuffer = new float[width*height];
 		if (zbufferImg) delete [] zbufferImg;
 		zbufferImg = NULL;
+		if ( sampleCount ) delete [] sampleCount;
+		sampleCount = new uchar[width*height];
+		if ( sampleCountImg ) delete [] sampleCountImg;
+		sampleCountImg = NULL;
 		ResetNumRenderedPixels();
 	}
 
@@ -424,6 +557,8 @@ public:
 	Color24*	GetPixels()			{ return img; }
 	float*		GetZBuffer()		{ return zbuffer; }
 	uchar*		GetZBufferImage()	{ return zbufferImg; }
+	uchar*		GetSampleCount()	{ return sampleCount; }
+	uchar*		GetSampleCountImage(){ return sampleCountImg; }
 
 	void	ResetNumRenderedPixels()		{ numRenderedPixels=0; }
 	int		GetNumRenderedPixels() const	{ return numRenderedPixels; }
@@ -454,8 +589,33 @@ public:
 		}
 	}
 
+	int ComputeSampleCountImage()
+	{
+		int size = width * height;
+		if (sampleCountImg) delete [] sampleCountImg;
+		sampleCountImg = new uchar[size];
+
+		uchar smin=255, smax=0;
+		for ( int i=0; i<size; i++ ) {
+			if ( smin > sampleCount[i] ) smin = sampleCount[i];
+			if ( smax < sampleCount[i] ) smax = sampleCount[i];
+		}
+		if ( smax == smin ) {
+			for ( int i=0; i<size; i++ ) sampleCountImg[i] = 0;
+		} else {
+			for ( int i=0; i<size; i++ ) {
+				int c = (255*(sampleCount[i]-smin))/(smax-smin);
+				if ( c < 0 ) c = 0;
+				if ( c > 255 ) c = 255;
+				sampleCountImg[i] = c;
+			}
+		}
+		return smax;
+	}
+
 	bool SaveImage (const char *filename, bool flipped=false) const { return SavePPM(filename,&img[0].r,3,flipped); }
 	bool SaveZImage(const char *filename, bool flipped=false) const { return SavePPM(filename,zbufferImg,1,flipped); }
+	bool SaveSampleCountImage(const char *filename, bool flipped=false) const { return SavePPM(filename,sampleCountImg,1,flipped); }
 
 private:
 	bool SavePPM(const char *filename, uchar *data, int compCount, bool flipped) const

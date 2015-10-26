@@ -29,6 +29,9 @@
     <Filter Include="cyCodeBase">
       <UniqueIdentifier>{2d9d4027-0601-4ec0-b0f3-62eacc910d0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Texture">
+      <UniqueIdentifier>{6028a1b3-e315-4868-a97b-73ba2e2779b9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="viewport.cpp">
@@ -67,6 +70,9 @@
     </ClCompile>
     <ClCompile Include="BVHTraversal.cpp">
       <Filter>Intersection</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Texture</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -124,6 +130,9 @@
     </ClInclude>
     <ClInclude Include="cyCodeBase\cyBVH.h">
       <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Texture</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

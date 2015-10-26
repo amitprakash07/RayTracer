@@ -33,6 +33,11 @@ bool Sphere::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 			hInfo.p = ray.p + hInfo.z* ray.dir;
 			hInfo.N = (hInfo.p - Point3(0.0f, 0.0f, 0.0f)).GetNormalized();
 			hInfo.front = true;
+
+			float theta = acos(hInfo.p.z);
+			float phi = asin(hInfo.p.x / sin(theta));
+			hInfo.uvw.x = phi / (2 * M_PI);
+			hInfo.uvw.y = 1 - (theta / M_PI);
 		}
 
 		if ((t1 > BIAS) && (t1 < hInfo.z))
@@ -42,6 +47,11 @@ bool Sphere::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 			hInfo.p = ray.p + hInfo.z* ray.dir;
 			hInfo.N = (hInfo.p - Point3(0.0f, 0.0f, 0.0f)).GetNormalized();
 			hInfo.front = false;
+
+			float theta = acos(hInfo.p.z);
+			float phi = asin(hInfo.p.x / sin(theta));
+			hInfo.uvw.x = phi / (2 * M_PI);
+			hInfo.uvw.y = 1 - (theta / M_PI);
 		}
 
 	}

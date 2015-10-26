@@ -13,6 +13,9 @@ MaterialList materials;
 LightList lights;
 Plane thePlane;
 ObjFileList objList;
+TexturedColor background;
+TexturedColor environment;
+TextureList textureList;
 
 
 

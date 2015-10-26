@@ -25,10 +25,10 @@ bool TriObj::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 
 bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsigned faceID) const
 {
-	MeshIndices vertex = this->F(faceID);
-	Point3 vertexA = this->V(vertex.v[0]);
-	Point3 vertexB = this->V(vertex.v[1]);
-	Point3 vertexC = this->V(vertex.v[2]);
+	MeshIndices face = this->F(faceID);
+	Point3 vertexA = this->V(face.v[0]);
+	Point3 vertexB = this->V(face.v[1]);
+	Point3 vertexC = this->V(face.v[2]);
 	Point3 faceNormalNormalized = Point3(0, 0, 0);
 	bool ishit = false;
 	Point3 normal;
@@ -61,6 +61,7 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 			}
 
 			hInfo.p = P;
+			hInfo.uvw = GetTexCoord(faceID, Point3(alpha, beta, gamma));
 #ifdef RELEASE_DEBUG
 			if (SHOW_NORMAL)
 				hInfo.N = faceNormalNormalized;
@@ -100,6 +101,7 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 				faceNormalNormalized = GetNormal(faceID, Point3(alpha, beta, gamma));
 			}
 			hInfo.p = P;
+			hInfo.uvw = GetTexCoord(faceID, Point3(alpha,beta, gamma));
 #ifdef RELEASE_DEBUG
 			if (SHOW_NORMAL)
 				hInfo.N = faceNormalNormalized;
@@ -112,9 +114,6 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 				hInfo.front = true;
 			else  hInfo.front = false;
 			ishit = true;
-
-
-
 		}
 	}
 

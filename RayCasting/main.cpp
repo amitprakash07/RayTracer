@@ -5,7 +5,7 @@
 #include "RayIntersection.h"
 #include "LightColor.h"
 
-#define LOAD_FILE "../Assets/CornellBoxScene.xml"
+#define LOAD_FILE "Texture.xml"
 //#define LOAD_FILE "XMLFile.xml"
 extern Camera camera;
 bool TraceRay(Node *i_node, Ray &ray, HitInfo &hInfo, int hitside = HIT_FRONT);
@@ -66,7 +66,7 @@ int main(void)
 			else
 			{
 
-				temp_image[i*camera.imgWidth + j] = noHitPixelColor;
+				temp_image[i*camera.imgWidth + j] = background.SampleEnvironment(pixelRay.dir);// noHitPixelColor;
 				temp_zBuffer[i*camera.imgWidth + j] = hitInfo.z;
 			}
 		}
@@ -84,7 +84,7 @@ int main(void)
 	ShowViewport();
 	
 }
-
+		
 
 
 

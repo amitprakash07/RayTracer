@@ -36,8 +36,11 @@ inline bool TraceRay(Node * i_node, Ray &ray, HitInfo &hInfo, int hitside)
 				}
 				isHit |= tempHit;
 			}
-			else 
+			else
+			{
 				isHit = false;
+			}
+				
 		}
 	}
 	
