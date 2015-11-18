@@ -32,6 +32,12 @@
     <Filter Include="Texture">
       <UniqueIdentifier>{6028a1b3-e315-4868-a97b-73ba2e2779b9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Maths">
+      <UniqueIdentifier>{a28c0029-b60f-4cfc-8146-61439829a244}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sampling">
+      <UniqueIdentifier>{026a06a9-ecbe-478d-84a7-cbe09ddfec2b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="viewport.cpp">
@@ -74,6 +80,21 @@
     <ClCompile Include="texture.cpp">
       <Filter>Texture</Filter>
     </ClCompile>
+    <ClCompile Include="RandomSampler.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereSampler.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
+    <ClCompile Include="Sampler.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
+    <ClCompile Include="CircleSampler.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tinyxml\tinyxml.h">
@@ -113,26 +134,53 @@
     <ClInclude Include="RayIntersection.h">
       <Filter>Intersection</Filter>
     </ClInclude>
-    <ClInclude Include="cyColor.h">
-      <Filter>cyCodeBase</Filter>
-    </ClInclude>
-    <ClInclude Include="cyMatrix-1\cyMatrix2.h">
-      <Filter>cyCodeBase</Filter>
-    </ClInclude>
-    <ClInclude Include="cyMatrix-1\cyMatrix3.h">
-      <Filter>cyCodeBase</Filter>
-    </ClInclude>
-    <ClInclude Include="cyMatrix-1\cyMatrix4.h">
-      <Filter>cyCodeBase</Filter>
-    </ClInclude>
-    <ClInclude Include="cyPoint-1\cyPoint.h">
-      <Filter>cyCodeBase</Filter>
+    <ClInclude Include="texture.h">
+      <Filter>Texture</Filter>
     </ClInclude>
     <ClInclude Include="cyCodeBase\cyBVH.h">
       <Filter>cyCodeBase</Filter>
     </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>Texture</Filter>
+    <ClInclude Include="cyCodeBase\cyColor.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyMatrix2.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyMatrix3.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyMatrix4.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyPoint.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyTriMesh.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Maths.h">
+      <Filter>Maths</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Maths</Filter>
+    </ClInclude>
+    <ClInclude Include="Sampler.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomSampler.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="HaltonSequence.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereSampler.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="CircleSampler.h">
+      <Filter>Sampling</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -72,7 +72,13 @@ public:
 	cyColor operator/(float n) const { return cyColor(r/n, g/n, b/n); }
 
 	///@name Assignment operators
-	cyColor& operator+=( const cyColor &c ) { r+=c.r; g+=c.g; b+=c.b; return *this; }
+	cyColor& operator+=( const cyColor &c ) 
+	{
+		r+=c.r;
+		g+=c.g;
+		b+=c.b;
+		return *this;
+	}
 	cyColor& operator-=( const cyColor &c ) { r-=c.r; g-=c.g; b-=c.b; return *this; }
 	cyColor& operator*=( const cyColor &c ) { r*=c.r; g*=c.g; b*=c.b; return *this; }
 	cyColor& operator/=( const cyColor &c ) { r/=c.r; g/=c.g; b/=c.b; return *this; }

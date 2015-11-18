@@ -4,7 +4,7 @@
 
 bool Box::IntersectRay(const Ray& r, float t_max) const
 {
-	float isHit = false;
+	bool isHit = false;
 
 	//Check X-Normal
 	float tx1 = (-r.p.x + pmin.x) / r.dir.x;

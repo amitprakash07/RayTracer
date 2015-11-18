@@ -4,8 +4,8 @@
 #include  "objects.h"
 #include <limits>
 
-extern Camera camera;
-extern Ray pixelRay;
+//extern Camera camera;
+//extern Ray pixelRay;
 
 inline bool TraceRay(Node * i_node, Ray &ray, HitInfo &hInfo, int hitside)
 {

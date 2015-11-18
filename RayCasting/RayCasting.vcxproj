@@ -242,10 +242,15 @@
   <ItemGroup>
     <ClCompile Include="BoxIntersection.cpp" />
     <ClCompile Include="BVHTraversal.cpp" />
+    <ClCompile Include="CircleSampler.cpp" />
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="PlaneIntersection.cpp" />
+    <ClCompile Include="RandomSampler.cpp" />
+    <ClCompile Include="Sample.cpp" />
+    <ClCompile Include="Sampler.cpp" />
+    <ClCompile Include="SphereSampler.cpp" />
     <ClCompile Include="SphereIntersection.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="Time\FrameTime.cpp" />
@@ -256,24 +261,33 @@
     <ClCompile Include="xmlload.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CircleSampler.h" />
     <ClInclude Include="cyCodeBase\cyBVH.h" />
-    <ClInclude Include="cyColor.h" />
-    <ClInclude Include="cyMatrix-1\cyMatrix2.h" />
-    <ClInclude Include="cyMatrix-1\cyMatrix3.h" />
-    <ClInclude Include="cyMatrix-1\cyMatrix4.h" />
-    <ClInclude Include="cyPoint-1\cyPoint.h" />
+    <ClInclude Include="cyCodeBase\cyColor.h" />
+    <ClInclude Include="cyCodeBase\cyMatrix2.h" />
+    <ClInclude Include="cyCodeBase\cyMatrix3.h" />
+    <ClInclude Include="cyCodeBase\cyMatrix4.h" />
+    <ClInclude Include="cyCodeBase\cyPoint.h" />
+    <ClInclude Include="cyCodeBase\cyTriMesh.h" />
+    <ClInclude Include="HaltonSequence.h" />
     <ClInclude Include="LightColor.h" />
     <ClInclude Include="lights.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="materials.h" />
+    <ClInclude Include="Maths.h" />
     <ClInclude Include="objects.h" />
+    <ClInclude Include="RandomSampler.h" />
     <ClInclude Include="RayIntersection.h" />
+    <ClInclude Include="Sample.h" />
+    <ClInclude Include="Sampler.h" />
     <ClInclude Include="scene.h" />
+    <ClInclude Include="SphereSampler.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="Time\FrameTime.h" />
     <ClInclude Include="Time\TimeHelper.h" />
     <ClInclude Include="tinyxml\tinystr.h" />
     <ClInclude Include="tinyxml\tinyxml.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="viewport.h" />
     <ClInclude Include="xmlload.h" />
   </ItemGroup>

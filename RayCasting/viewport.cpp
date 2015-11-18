@@ -2,8 +2,8 @@
 ///
 /// \file       viewport.cpp 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    8.0
-/// \date       October 19, 2015
+/// \version    9.0
+/// \date       October 28, 2015
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
@@ -58,6 +58,11 @@ static int		startTime;						// Start time of rendering
 static int mouseX=0, mouseY=0;
 static float viewAngle1=0, viewAngle2=0;
 
+static int		dofDrawCount = 0;
+static Color	*dofImage = NULL;
+static Color24	*dofBuffer = NULL;
+#define MAX_DOF_DRAW	32
+
 //-------------------------------------------------------------------------------
 
 void GlutDisplay();
@@ -102,6 +107,12 @@ void ShowViewport()
 	glEnable(GL_NORMALIZE);
 
 	glLineWidth(2);
+
+	if ( camera.dof > 0 ) {
+		dofBuffer = new Color24[ camera.imgWidth * camera.imgHeight ];
+		dofImage = new Color[ camera.imgWidth * camera.imgHeight ];
+		memset( dofImage, 0, camera.imgWidth * camera.imgHeight * sizeof(Color) );
+	}
 
 	glutMainLoop();
 }
@@ -198,8 +209,14 @@ void DrawScene()
 
 	glPushMatrix();
 	Point3 p = camera.pos;
-	Point3 t = camera.pos + camera.dir;
+	Point3 t = camera.pos + camera.dir*camera.focaldist;
 	Point3 u = camera.up;
+	if ( camera.dof > 0 ) {
+		Point3 v = camera.dir ^ camera.up;
+		float r = sqrtf(float(rand())/RAND_MAX)*camera.dof;
+		float a = M_PI * 2.0f * float(rand())/RAND_MAX;
+		p += r*cosf(a)*v + r*sinf(a)*u;
+	}
 	gluLookAt( p.x, p.y, p.z,  t.x, t.y, t.z,  u.x, u.y, u.z );
 
 	glRotatef( viewAngle1, 1, 0, 0 );
@@ -267,7 +284,24 @@ void GlutDisplay()
 {
 	switch ( viewMode ) {
 	case VIEWMODE_OPENGL:
-		DrawScene();
+		if ( dofImage ) {
+			if ( dofDrawCount < MAX_DOF_DRAW ) {
+				DrawScene();
+				glReadPixels( 0, 0, camera.imgWidth, camera.imgHeight, GL_RGB, GL_UNSIGNED_BYTE, dofBuffer );
+				for ( int i=0; i<camera.imgWidth*camera.imgHeight; i++ ) {
+					dofImage[i] = (dofImage[i]*dofDrawCount + dofBuffer[i].ToColor())/(dofDrawCount+1);
+				}
+				dofDrawCount++;
+			}
+			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+			glDrawPixels( camera.imgWidth, camera.imgHeight, GL_RGB, GL_FLOAT, dofImage );
+			if ( dofDrawCount < MAX_DOF_DRAW ) {
+				DrawProgressBar(float(dofDrawCount)/MAX_DOF_DRAW);
+				glutPostRedisplay();
+			}
+		} else {
+			DrawScene();
+		}
 		break;
 	case VIEWMODE_IMAGE:
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
@@ -325,8 +359,13 @@ void GlutKeyboard(unsigned char key, int x, int y)
 		case MODE_READY: 
 			mode = MODE_RENDERING;
 			viewMode = VIEWMODE_IMAGE;
-			DrawScene();
-			glReadPixels( 0, 0, renderImage.GetWidth(), renderImage.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, renderImage.GetPixels() );
+			if ( dofImage ) {
+				Color24 *p = renderImage.GetPixels();
+				for ( int i=0; i<camera.imgWidth*camera.imgHeight; i++ ) p[i] = dofImage[i];
+			} else {
+				DrawScene();
+				glReadPixels( 0, 0, renderImage.GetWidth(), renderImage.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, renderImage.GetPixels() );
+			}
 			startTime = time(NULL);
 			BeginRender();
 			break;

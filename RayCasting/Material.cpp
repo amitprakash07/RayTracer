@@ -57,7 +57,8 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 				}
 				else
 				{
-					
+					refractiveComp = environment.SampleEnvironment(refractionRay.dir);
+
 				}
 				
 			}
@@ -65,12 +66,12 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 
 
 			/********************Schlick's Approximation - Fresnel Reflection***************************/
-			//schlicksConstant = pow(((n1 - n2) / (n1 + n2)), 2);
-			//ratioOfRefraction = schlicksConstant + (1 - schlicksConstant) * pow((1 - viewDirection.Dot(hInfo.N)), 5);
-			//reflectionTotal = ratioOfRefraction*refraction;
-			//refractionTotal = (1 - ratioOfRefraction)*refraction;
+			/*schlicksConstant = pow(((n1 - n2) / (n1 + n2)), 2);
+			ratioOfRefraction = schlicksConstant + (1 - schlicksConstant) * pow((1 - viewDirection.Dot(hInfo.N)), 5);
+			reflectionTotal = ratioOfRefraction*refraction.Sample(hInfo.uvw);
+			refractionTotal = (1 - ratioOfRefraction)*refraction.Sample(hInfo.uvw);*/
 			///*******************************************************************************************/
-			//refractiveComp *= refractionTotal; //It = (1-R) * KT'
+			//refractiv    eComp *= refractionTotal; //It = (1-R) * KT'
 			reflectionTotal += reflection.Sample(hInfo.uvw); //Doing outside in case refraction didn't occured at all
 
 			/*********************************************************************************************/
@@ -91,7 +92,7 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 				}
 				else
 				{
-					environment.SampleEnvironment(reflectionViewVector.dir);
+					reflectiveComp = environment.SampleEnvironment(reflectionViewVector.dir);
 				}
 			}
 			/****************************************************************************************************/

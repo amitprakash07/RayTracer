@@ -2,14 +2,13 @@
 ///
 /// \file       xmlload.cpp 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    7.0
-/// \date       October 6, 2015
+/// \version    10.1
+/// \date       November 11, 2015
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
 //-------------------------------------------------------------------------------
 
-#include "scene.h"
 #include "objects.h"
 #include "materials.h"
 #include "lights.h"
@@ -114,6 +113,8 @@ int LoadScene(const char *filename)
 		else if ( COMPARE( camChild->Value(), "target"    ) ) ReadVector(camChild,camera.dir);
 		else if ( COMPARE( camChild->Value(), "up"        ) ) ReadVector(camChild,camera.up);
 		else if ( COMPARE( camChild->Value(), "fov"       ) ) ReadFloat (camChild,camera.fov);
+		else if ( COMPARE( camChild->Value(), "focaldist" ) ) ReadFloat (camChild,camera.focaldist);
+		else if ( COMPARE( camChild->Value(), "dof"       ) ) ReadFloat (camChild,camera.dof);
 		else if ( COMPARE( camChild->Value(), "width"     ) ) camChild->QueryIntAttribute("value", &camera.imgWidth);
 		else if ( COMPARE( camChild->Value(), "height"    ) ) camChild->QueryIntAttribute("value", &camera.imgHeight);
 		camChild = camChild->NextSiblingElement();
@@ -221,9 +222,11 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
 								if ( mtl.illum > 2 && mtl.illum <= 7 ) {
 									m->SetReflection( Color(mtl.Ks) );
 									if ( mtl.map_Ks.name[0] != '\0' ) m->SetReflectionTexture( new TextureMap(ReadTexture(mtl.map_Ks.name)) );
-									float gloss = acosf(powf(2,1/mtl.Ns));
+									float gloss = acosf(powf(2,-1/mtl.Ns));
+									m->SetReflectionGlossiness(gloss);
 									if ( mtl.illum >= 6 ) {
 										m->SetRefraction( 1 - Color(mtl.Tf) );
+										m->SetRefractionGlossiness(gloss);
 									}
 								}
 								mm->AppendMaterial(m);
@@ -326,15 +329,25 @@ void LoadMaterial(TiXmlElement *element)
 				} else if ( COMPARE( child->Value(), "reflection" ) ) {
 					ReadColor( child, c );
 					m->SetReflection(c);
-					printf("   reflection %f %f %f\n",c.r,c.g,c.b);
+					printf("   reflection %f %f %f",c.r,c.g,c.b);
 					m->SetReflectionTexture( ReadTexture(child) );
+					f = 0;
+					ReadFloat( child, f, "glossiness" );
+					m->SetReflectionGlossiness(f);
+					if ( f > 0 ) printf(" (glossiness %f)",f);
+					printf("\n");
 				} else if ( COMPARE( child->Value(), "refraction" ) ) {
 					ReadColor( child, c );
 					m->SetRefraction(c);
 					ReadFloat( child, f, "index" );
 					m->SetRefractionIndex(f);
-					printf("   refraction %f %f %f (index %f)\n",c.r,c.g,c.b,f);
+					printf("   refraction %f %f %f (index %f)",c.r,c.g,c.b,f);
 					m->SetRefractionTexture( ReadTexture(child) );
+					f = 0;
+					ReadFloat( child, f, "glossiness" );
+					m->SetRefractionGlossiness(f);
+					if ( f > 0 ) printf(" (glossiness %f)",f);
+					printf("\n");
 				} else if ( COMPARE( child->Value(), "absorption" ) ) {
 					ReadColor( child, c );
 					m->SetAbsorption(c);
@@ -411,6 +424,11 @@ void LoadLight(TiXmlElement *element)
 					ReadVector( child, v );
 					l->SetPosition(v);
 					printf("   position %f %f %f\n",v.x,v.y,v.z);
+				} else if ( COMPARE( child->Value(), "size" ) ) {
+					float f = 0;
+					ReadFloat( child, f );
+					l->SetSize(f);
+					printf("   size %f\n",f);
 				}
 			}
 		} else {
