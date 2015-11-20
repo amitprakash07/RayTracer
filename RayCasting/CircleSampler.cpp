@@ -49,9 +49,10 @@ void CircleSampler::generateSamples(float, float)
 	Sample tempSample;
 	for (int i = 0; i < getCurrentSampleCount(); i++)
 	{
-		float sampleRadius = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * radius;
+		float sampleRadius = sqrt(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * radius;
 		float theta = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 360.0f;
-		Point3 tempTargetPosition = targetPosition + getCoordinateOnCircle(sampleRadius, theta);
+		tempSample.setOffset(getCoordinateOnCircle(sampleRadius, theta));
+		Point3 tempTargetPosition = targetPosition + tempSample.getOffset();
 		tempSample.setRay(Ray(sampleOrigin, tempTargetPosition - sampleOrigin));
 		addSampleToList(tempSample);
 	}

@@ -3,6 +3,7 @@
 #define __UTILS_H
 
 #include "scene.h"
+#include "CircleSampler.h"
 
 extern Camera camera;
 
@@ -22,8 +23,23 @@ inline Ray calculatePixelCoords(int pixelPositionAlongWidth,
 	float flipped_i = camera.imgHeight - pixelPositonAlongHeight - 1;
 	pixel = k + (((2.0f*aspectRatio * (pixelPositionAlongWidth /*+ 0.5f*/ + positionInsidePixel.x)) / camera.imgWidth) - aspectRatio)*Sx + ((((flipped_i /*+ 0.5*/ + positionInsidePixel.y) * 2) / camera.imgHeight) - 1)* Sy;
 	Ray sampleRay;
-	sampleRay.p = camera.pos;
-	sampleRay.dir = (pixel - camera.pos).GetNormalized();
+	Sample cameraSample;
+	if(camera.dof > 0)
+	{
+		Sampler *circleRandomSampler = new CircleSampler(10, 10, camera.dof, camera.pos, camera.pos);
+		circleRandomSampler->generateSamples();
+		int sampleCount = circleRandomSampler->getCurrentSampleCount();
+		srand(time(nullptr));
+		cameraSample = circleRandomSampler->getSample(static_cast<int>(static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * sampleCount));
+		Point3 offset = cameraSample.getOffset();
+		sampleRay.p = camera.pos + offset.x* cameraRight + offset.y * camera.dir;
+		sampleRay.dir = (pixel - sampleRay.p).GetNormalized();
+	}
+	else
+	{
+		sampleRay.p = camera.pos;
+		sampleRay.dir = (pixel - camera.pos).GetNormalized();
+	}
 	return sampleRay;
 }
 

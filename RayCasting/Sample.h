@@ -16,11 +16,14 @@ public:
 	HitInfo getHitInfo();
 	void setIshit(bool);
 	bool isHitTrue();
+	void setOffset(Point3);
+	Point3 getOffset();
 	Sample();	
 private:
 	Ray mRay;
 	Color mShadeColor;
 	HitInfo mHitInfo;
+	Point3 offset;
 	bool isHit;
 };
 

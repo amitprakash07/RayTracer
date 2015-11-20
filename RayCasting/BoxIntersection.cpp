@@ -1,10 +1,12 @@
 #include "scene.h"
 
 #define BOX_BIAS (1200* FLT_EPSILON)
+#include <iostream>
 
 bool Box::IntersectRay(const Ray& r, float t_max) const
 {
 	bool isHit = false;
+
 
 	//Check X-Normal
 	float tx1 = (-r.p.x + pmin.x) / r.dir.x;
@@ -35,10 +37,12 @@ bool Box::IntersectRay(const Ray& r, float t_max) const
 	
 	if(tEntry < tExit && tEntry< t_max)
 	{
-		//max = tEntry;
+		t_max = tEntry;
 		isHit = true;
+		//std::cout << "\nBox InterSection Successful";
 	}
 
+	//std::cout << "\nBox InterSection UnSuccessful";
 	return isHit;
 }
 

@@ -2,7 +2,6 @@
 #define __MAIN_H
 
 #pragma optimize("/Og", off)
-#include "scene.h"
 #include "objects.h"
 
 

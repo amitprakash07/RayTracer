@@ -43,6 +43,7 @@ enum ViewMode
 	VIEWMODE_IMAGE,
 	VIEWMODE_Z,
 	VIEWMODE_SAMPLECOUNT,
+	VIEWMODE_OPERATIONCOUNT,
 };
 
 enum MouseMode {
@@ -318,6 +319,11 @@ void GlutDisplay()
 		if ( ! renderImage.GetSampleCountImage() ) renderImage.ComputeSampleCountImage();
 		glDrawPixels( renderImage.GetWidth(), renderImage.GetHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, renderImage.GetSampleCountImage() );
 		break;
+	case VIEWMODE_OPERATIONCOUNT:
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		if (!renderImage.GetSampleCountImage()) renderImage.ComputeSampleCountImage();
+		glDrawPixels(renderImage.GetWidth(), renderImage.GetHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, renderImage.GetOperationCountImage());
+		break;
 	}
 
 	glutSwapBuffers();
@@ -396,6 +402,10 @@ void GlutKeyboard(unsigned char key, int x, int y)
 		break;
 	case '4':
 		viewMode = VIEWMODE_SAMPLECOUNT;
+		glutPostRedisplay();
+		break;
+	case'5':
+		viewMode = VIEWMODE_OPERATIONCOUNT;
 		glutPostRedisplay();
 		break;
 	}

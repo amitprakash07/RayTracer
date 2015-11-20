@@ -17,6 +17,12 @@ int Sampler::getSampleBucketSize()
 	return currentSampleCount;
 }
 
+Sample Sampler::getSample(int i)
+{
+	return(mSampleList.getSample(i));
+}
+
+
 Ray Sampler::getSampleRay(int i)
 {
 	return(mSampleList.getSample(i).getRay());

@@ -95,6 +95,7 @@
     <ClCompile Include="CircleSampler.cpp">
       <Filter>Sampling</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tinyxml\tinyxml.h">
@@ -182,6 +183,7 @@
     <ClInclude Include="CircleSampler.h">
       <Filter>Sampling</Filter>
     </ClInclude>
+    <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Time\TimeHelper.inl">

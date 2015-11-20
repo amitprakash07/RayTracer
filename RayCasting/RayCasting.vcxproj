@@ -248,6 +248,7 @@
     <ClCompile Include="Material.cpp" />
     <ClCompile Include="PlaneIntersection.cpp" />
     <ClCompile Include="RandomSampler.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Sample.cpp" />
     <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="SphereSampler.cpp" />
@@ -278,6 +279,7 @@
     <ClInclude Include="objects.h" />
     <ClInclude Include="RandomSampler.h" />
     <ClInclude Include="RayIntersection.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Sample.h" />
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="scene.h" />

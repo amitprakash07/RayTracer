@@ -7,7 +7,7 @@
 //extern Camera camera;
 //extern Ray pixelRay;
 
-inline bool TraceRay(Node * i_node, Ray &ray, HitInfo &hInfo, int hitside)
+inline bool TraceRay(Node * i_node, Ray &ray, HitInfo &hInfo, int hitside = HIT_FRONT)
 {
 	bool isHit = false;
 	Ray transformedRay = i_node->ToNodeCoords(ray);
@@ -21,7 +21,6 @@ inline bool TraceRay(Node * i_node, Ray &ray, HitInfo &hInfo, int hitside)
 			hInfo.node->FromNodeCoords(hInfo);
 		}
 	}
-
 	if (i_node->GetNumChild() > 0)
 	{
 		for (int i = 0; i < i_node->GetNumChild(); i++)
@@ -40,7 +39,7 @@ inline bool TraceRay(Node * i_node, Ray &ray, HitInfo &hInfo, int hitside)
 			{
 				isHit = false;
 			}
-				
+
 		}
 	}
 	

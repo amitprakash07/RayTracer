@@ -4,6 +4,7 @@
 
 bool Sphere::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 {
+	hInfo.operationCount++;
 	bool isHit = false;
 	float a = ray.dir.Dot(ray.dir);
 	float b = 2 * ray.p.Dot(ray.dir);

@@ -11,6 +11,7 @@ bool TriObj::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 {
 	//std::cout << NF()<<std::endl;
 	bool isHit = false;
+	hInfo.operationCount++;
 	if (GetBoundBox().IntersectRay(ray, hInfo.z))
 	{
 		isHit = TraceBVHNode(ray, hInfo, hitSide, bvh.GetRootNodeID());
@@ -25,6 +26,7 @@ bool TriObj::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 
 bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsigned faceID) const
 {
+	hInfo.operationCount++;
 	MeshIndices face = this->F(faceID);
 	Point3 vertexA = this->V(face.v[0]);
 	Point3 vertexB = this->V(face.v[1]);

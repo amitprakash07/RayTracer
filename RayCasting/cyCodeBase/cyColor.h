@@ -168,7 +168,7 @@ public:
 	float  operator[]( int i ) const { return (&r)[i]; }
 
 	///@name Conversion Methods
-	cyColor	RGB() const { return cyColor(r,g,b); }
+	//cyColor	RGB() const { return cyColor(r,g,b); }
 };
 
 //-------------------------------------------------------------------------------

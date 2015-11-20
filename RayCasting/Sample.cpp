@@ -185,9 +185,22 @@ Sample::Sample()
 	mRay.p = Point3(0.0f, 0.0f, 0.0f);
 	mRay.dir = Point3(0.0f, 0.0f, 0.0f);
 	mShadeColor = Color(0.0f);
+	offset = Point3(0.0f, 0.0f, 0.0f);
 	mHitInfo.Init();
 	isHit = false;
 }
+
+Point3 Sample::getOffset()
+{
+	return offset;
+}
+
+void Sample::setOffset(Point3 i_offset)
+{
+	offset = i_offset;
+}
+
+
 
 
 

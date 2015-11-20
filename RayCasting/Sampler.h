@@ -12,6 +12,7 @@ public:
 	virtual bool needMoreSamples();
 	int getSampleBucketSize();
 	Ray getSampleRay(int i) ;
+	Sample getSample(int i);
 	void setSampleColor(int, Color);
 	void setIsSampleHit(int, bool) ;
 	void setHitInfo(int, HitInfo) ;
