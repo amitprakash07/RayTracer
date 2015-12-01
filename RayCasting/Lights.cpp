@@ -1,10 +1,12 @@
 #include "lights.h"
 #include "RayIntersection.h"
-#include "SphereSampler.h"
+#include "CircleSampler.h"
+#include "utils.h"
 
 extern Node rootNode;
 
 #define SHADOW_SAMPLE_COUNT 8
+
 
 float GenLight::Shadow(Ray ray, float t_max)
 {
@@ -19,16 +21,27 @@ float GenLight::Shadow(Ray ray, float t_max)
 
 Color PointLight::Illuminate(const Point3& p, const Point3& N) const
 {
-	Sampler * randomSphereSampler = new SphereSampler(SHADOW_SAMPLE_COUNT, SHADOW_SAMPLE_COUNT, size, p, position);
-	randomSphereSampler->generateSamples();
-	for (int i = 0; i < randomSphereSampler->getCurrentSampleCount(); ++i)
+	Sampler * randomCircleSampler = new CircleSampler(SHADOW_SAMPLE_COUNT, SHADOW_SAMPLE_COUNT, size, p, position);
+	randomCircleSampler->generateSamples();
+	Point3 randomVectorW;
+	Point3 vectorU;
+	Point3 vectorV;
+	Point3 lightDir = Direction(p);
+	srand(time(nullptr));
+	for (int i = 0; i < randomCircleSampler->getCurrentSampleCount(); ++i)
 	{
-		Ray sampleRay = randomSphereSampler->getSampleRay(i);
-		randomSphereSampler->setSampleColor(i, Shadow(sampleRay)* intensity);
-		randomSphereSampler->setIsSampleHit(i, true);
+		getOrthoNormalBasisVector(lightDir, vectorU, vectorV);
+		Point3 offset = randomCircleSampler->getSample(i).getOffset();
+		Point3 samplePosition = position + offset.x*vectorU + offset*vectorV;
+		Ray sampleRay;
+		sampleRay.dir = samplePosition - p;
+		sampleRay.p = p;
+		randomCircleSampler->setSampleColor(i, Shadow(sampleRay)* intensity);
+		randomCircleSampler->setIsSampleHit(i, true);
 	}
-	Color returnColor = randomSphereSampler->getAveragedSampleListColor();
-	delete randomSphereSampler;
+
+	Color returnColor = randomCircleSampler->getAveragedSampleListColor();
+	delete randomCircleSampler;
 	return returnColor;
 }
 

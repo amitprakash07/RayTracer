@@ -243,6 +243,7 @@
     <ClCompile Include="BoxIntersection.cpp" />
     <ClCompile Include="BVHTraversal.cpp" />
     <ClCompile Include="CircleSampler.cpp" />
+    <ClCompile Include="HemiSphereSampler.cpp" />
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -271,12 +272,16 @@
     <ClInclude Include="cyCodeBase\cyPoint.h" />
     <ClInclude Include="cyCodeBase\cyTriMesh.h" />
     <ClInclude Include="HaltonSequence.h" />
+    <ClInclude Include="HemiSphereSampler.h" />
+    <ClInclude Include="IIndirectLight.h" />
     <ClInclude Include="LightColor.h" />
     <ClInclude Include="lights.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="materials.h" />
     <ClInclude Include="Maths.h" />
+    <ClInclude Include="MonteCarloGI.h" />
     <ClInclude Include="objects.h" />
+    <ClInclude Include="PathTracer.h" />
     <ClInclude Include="RandomSampler.h" />
     <ClInclude Include="RayIntersection.h" />
     <ClInclude Include="Renderer.h" />

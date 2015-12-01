@@ -96,6 +96,9 @@
       <Filter>Sampling</Filter>
     </ClCompile>
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="HemiSphereSampler.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tinyxml\tinyxml.h">
@@ -184,6 +187,18 @@
       <Filter>Sampling</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="IIndirectLight.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="MonteCarloGI.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracer.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="HemiSphereSampler.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Time\TimeHelper.inl">

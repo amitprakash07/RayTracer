@@ -1,12 +1,14 @@
 #include "materials.h"
 #include "RayIntersection.h"
-#include <iostream>
 #include "LightColor.h"
+#include "SphereSampler.h"
+#include "utils.h"
 extern Node rootNode;
 extern TexturedColor environment;
 
 Point3 getRefractionVector(Point3 view, Point3 normal, float n1 = 1, float n2 = 1);
 Point3 getReflectionVector(Point3 view, Point3 normal);
+Point3 getPerturbedNormal(Point3 normal, Point3 hitPoint, float i_glossiness);
 
 Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lights, int bounceCount) const
 {
@@ -42,12 +44,12 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 				refractionRay.p = hInfo.p;
 				if (hInfo.front == HIT_FRONT)
 				{
-					refractionRay.dir = getRefractionVector(viewDirection, hInfo.N, n1, n2);
+					refractionRay.dir = getRefractionVector(viewDirection, getPerturbedNormal(hInfo.N, hInfo.p, refractionGlossiness), n1, n2);
 					//hitside = HIT_FRONT;
 				}
 				else
 				{
-					refractionRay.dir = getRefractionVector(viewDirection, -hInfo.N, n2, n1);
+					refractionRay.dir = getRefractionVector(viewDirection, getPerturbedNormal( -hInfo.N, hInfo.p, refractionGlossiness), n2, n1);
 					//hitside = HIT_BACK;
 				}
 				
@@ -59,8 +61,7 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 				{
 					refractiveComp = environment.SampleEnvironment(refractionRay.dir);
 
-				}
-				
+				}				
 			}
 
 
@@ -80,7 +81,7 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 			if(reflectionTotal != noColor && bounceCount > 0)
 			{
 				Ray reflectionViewVector;
-				reflectionViewVector.dir = getReflectionVector(viewDirection, hInfo.N);
+				reflectionViewVector.dir = getReflectionVector(viewDirection, getPerturbedNormal(hInfo.N, hInfo.p, reflectionGlossiness));
 				reflectionViewVector.p = hInfo.p;
 				HitInfo reflectionRayHit;
 				reflectionRayHit.Init();
@@ -124,3 +125,22 @@ Point3 getReflectionVector(Point3 view, Point3 normal)
 {
 	return((2 * normal * (view.Dot(normal))) - view); //Using Reflection Vector for formulae
 }
+
+
+Point3 getPerturbedNormal(Point3 normal, Point3 hitPoint, float i_glossiness)
+{
+	float radius = tan(i_glossiness * (M_PI / 180));
+	Sampler *sphereSampler = new SphereSampler(5, 5, radius);
+	sphereSampler->generateSamples();
+	Point3 randomOffset = sphereSampler->getSample(getRandomNumber(5)).getOffset();
+	delete sphereSampler;
+	randomOffset += hitPoint;
+	/*Point3 u;
+	Point3 v;
+	getOrthoNormalBasisVector(normal, u, v);
+	*/
+	//To - Do Need to do vector calculation to meet into normal coordinate - Confused on this
+	return (normal + randomOffset).GetNormalized();
+}
+
+

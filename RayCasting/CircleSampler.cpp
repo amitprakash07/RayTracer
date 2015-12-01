@@ -43,8 +43,8 @@ void CircleSampler::setSampleOrigin(Point3 i_sampleOrigin)
 
 void CircleSampler::generateSamples(float, float)
 {
-	increaseSampleCount();
 	clearSamples();
+	increaseSampleCount();	
 	srand(time(nullptr));
 	Sample tempSample;
 	for (int i = 0; i < getCurrentSampleCount(); i++)
@@ -56,7 +56,6 @@ void CircleSampler::generateSamples(float, float)
 		tempSample.setRay(Ray(sampleOrigin, tempTargetPosition - sampleOrigin));
 		addSampleToList(tempSample);
 	}
-
 }
 
 

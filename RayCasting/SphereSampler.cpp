@@ -42,16 +42,18 @@ void SphereSampler::setSampleOrigin(Point3 i_sampleOrigin)
 
 void SphereSampler::generateSamples(float, float)
 {
-	increaseSampleCount();
 	clearSamples();
+	increaseSampleCount();
 	srand(time(nullptr));
 	Sample tempSample;
 	for (int i = 0; i < getCurrentSampleCount(); i++)
 	{
-		float sampleRadius = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * radius;
+		float sampleRadius = sqrt(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * radius;
 		float theta = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 360.0f;
 		float phi = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 360.0f;
-		Point3 tempTargetPosition = targetPosition + getSphericalCoordinates(sampleRadius, theta, phi);
+		Point3 offset = getSphericalCoordinates(sampleRadius, theta, phi);
+		tempSample.setOffset(offset);
+		Point3 tempTargetPosition = targetPosition + offset;
 		tempSample.setRay(Ray(sampleOrigin, tempTargetPosition - sampleOrigin));
 		addSampleToList(tempSample);
 	}

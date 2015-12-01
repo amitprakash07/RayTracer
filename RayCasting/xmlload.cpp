@@ -2,13 +2,14 @@
 ///
 /// \file       xmlload.cpp 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    10.1
-/// \date       November 11, 2015
+/// \version    10.0
+/// \date       November 4, 2015
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
 //-------------------------------------------------------------------------------
 
+#include "scene.h"
 #include "objects.h"
 #include "materials.h"
 #include "lights.h"
@@ -326,6 +327,11 @@ void LoadMaterial(TiXmlElement *element)
 					ReadFloat( child, f );
 					m->SetGlossiness(f);
 					printf("   glossiness %f\n",f);
+				} else if ( COMPARE( child->Value(), "emission" ) ) {
+					ReadColor( child, c );
+					m->SetEmission(c);
+					printf("   emission %f %f %f\n",c.r,c.g,c.b);
+					m->SetEmissionTexture( ReadTexture(child) );
 				} else if ( COMPARE( child->Value(), "reflection" ) ) {
 					ReadColor( child, c );
 					m->SetReflection(c);

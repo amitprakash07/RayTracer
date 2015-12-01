@@ -30,7 +30,7 @@ public:
 	void addSampleToList(Sample);
 	void initSampler(int, int);
 	Sampler();
-	virtual ~Sampler() {}
+	virtual ~Sampler();
 private:
 	SampleList mSampleList;
 	int currentSampleCount;

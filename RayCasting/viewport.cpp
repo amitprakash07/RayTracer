@@ -2,8 +2,8 @@
 ///
 /// \file       viewport.cpp 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    9.0
-/// \date       October 28, 2015
+/// \version    11.0
+/// \date       November 11, 2015
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
@@ -43,7 +43,8 @@ enum ViewMode
 	VIEWMODE_IMAGE,
 	VIEWMODE_Z,
 	VIEWMODE_SAMPLECOUNT,
-	VIEWMODE_OPERATIONCOUNT,
+	VIEWMODE_IRRADCOMP,
+	VIEWMODE_OPERATIONCOUNT
 };
 
 enum MouseMode {
@@ -319,10 +320,17 @@ void GlutDisplay()
 		if ( ! renderImage.GetSampleCountImage() ) renderImage.ComputeSampleCountImage();
 		glDrawPixels( renderImage.GetWidth(), renderImage.GetHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, renderImage.GetSampleCountImage() );
 		break;
+	case VIEWMODE_IRRADCOMP:
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+		if ( renderImage.GetIrradianceComputationImage() ) {
+			glDrawPixels( renderImage.GetWidth(), renderImage.GetHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, renderImage.GetIrradianceComputationImage() );
+		}
+		break;
 	case VIEWMODE_OPERATIONCOUNT:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		if (!renderImage.GetSampleCountImage()) renderImage.ComputeSampleCountImage();
-		glDrawPixels(renderImage.GetWidth(), renderImage.GetHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, renderImage.GetOperationCountImage());
+		if (renderImage.GetOperationCountImage()) {
+			glDrawPixels(renderImage.GetWidth(), renderImage.GetHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, renderImage.GetOperationCountImage());
+		}
 		break;
 	}
 
@@ -349,6 +357,7 @@ void GlutIdle()
 			}
 			glutPostRedisplay();
 		}
+		if ( viewMode == VIEWMODE_IRRADCOMP ) glutPostRedisplay();
 	}
 }
 
@@ -404,10 +413,15 @@ void GlutKeyboard(unsigned char key, int x, int y)
 		viewMode = VIEWMODE_SAMPLECOUNT;
 		glutPostRedisplay();
 		break;
-	case'5':
+	case '5':
+		viewMode = VIEWMODE_IRRADCOMP;
+		glutPostRedisplay();
+		break;
+	case '6':
 		viewMode = VIEWMODE_OPERATIONCOUNT;
 		glutPostRedisplay();
 		break;
+		
 	}
 }
 
@@ -538,6 +552,8 @@ void MtlBlinn::SetViewportMaterial(int subMtlID) const
 	c = specular.GetColor();
 	glMaterialfv( GL_FRONT, GL_SPECULAR, &c.r );
 	glMaterialf( GL_FRONT, GL_SHININESS, glossiness*1.5f );
+	c = emission.GetColor();
+	glMaterialfv( GL_FRONT, GL_EMISSION, &c.r );
 	const TextureMap *dm = diffuse.GetTexture();
 	if ( dm && dm->SetViewportTexture() ) {
 		glEnable( GL_TEXTURE_2D );

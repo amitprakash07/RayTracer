@@ -13,8 +13,8 @@ RandomSampler::RandomSampler(int i_minSampleCount, int i_maxSampleCount, double 
 
 void RandomSampler::generateSamples(float pixelIndexAlongWidth, float pixelIndexAlongHeight)
 {
-	increaseSampleCount();
 	clearSamples();
+	increaseSampleCount();
 	srand(time(nullptr));
 	Point2 tempOffset;
 	Sample tempSample;

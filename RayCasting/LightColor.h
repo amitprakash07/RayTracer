@@ -4,7 +4,6 @@
 #include "scene.h"
 
 
-
 inline Color specularComponent(const Light *i_light, Point3 i_viewDirection, HitInfo i_hInfo, Color i_specular, float i_glossiness )
 {
 	Color o_specularComponent = Color(0, 0, 0);

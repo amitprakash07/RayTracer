@@ -12,7 +12,7 @@ inline bool TraceRay(Node * i_node, Ray &ray, HitInfo &hInfo, int hitside = HIT_
 	bool isHit = false;
 	Ray transformedRay = i_node->ToNodeCoords(ray);
 	
-	if (i_node->GetNodeObj() != nullptr)
+	if (i_node->GetNodeObj() != nullptr/* && i_node->GetNodeObj()->GetBoundBox().IntersectRay(transformedRay,hInfo.z)*/)
 	{
 		isHit = i_node->GetNodeObj()->IntersectRay(transformedRay, hInfo, hitside);
 		if (isHit)
@@ -39,7 +39,6 @@ inline bool TraceRay(Node * i_node, Ray &ray, HitInfo &hInfo, int hitside = HIT_
 			{
 				isHit = false;
 			}
-
 		}
 	}
 	

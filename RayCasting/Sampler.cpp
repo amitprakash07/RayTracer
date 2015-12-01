@@ -112,6 +112,7 @@ void Sampler::addSampleToList(Sample i_sample)
 void Sampler::clearSamples()
 {
 	mSampleList.clearAll();
+	currentSampleCount = 0;
 }
 
 double Sampler::getMaxThreshold()
@@ -139,6 +140,13 @@ void Sampler::setMinThreshold(double i_minThreshold)
 {
 	minVarianceThreshold = i_minThreshold;
 }
+
+
+Sampler::~Sampler()
+{
+	
+}
+
 
 
 

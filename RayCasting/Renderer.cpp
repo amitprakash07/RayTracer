@@ -53,19 +53,20 @@ void Renderer::startRendering(size_t i_threadCount)
 		
 		threadVal[i] = i;
 		std::cout << "\nPassing Value to thread" << threadVal[i];
-		mThreadHandle.thread[i] = CreateThread(nullptr, 0, static_cast<LPTHREAD_START_ROUTINE>(renderPixel), &threadVal[i], 0, nullptr);
+		mThreadHandle.thread[i] = CreateThread(nullptr, 0, static_cast<LPTHREAD_START_ROUTINE>(renderPixel), &threadVal[i], CREATE_SUSPENDED, nullptr);
 	}
 
+	for (size_t i = 0; i < threadCount;i++)
+	{
+		ResumeThread(mThreadHandle.thread[i]);
+	}
 
-	
-	WaitForMultipleObjects(threadCount, mThreadHandle.thread, TRUE, INFINITE);
-
-	renderImage.SaveImage("RayCasted.ppm");
-	renderImage.ComputeZBufferImage();
-	renderImage.SaveZImage("RayCastWithZ.ppm");
-	renderImage.ComputeSampleCountImage();
-	renderImage.SaveSampleCountImage("SampleCountImage.ppm");
-	mThreadHandle.destroyThread();
+	std::cout << std::endl << WaitForMultipleObjects(threadCount + 1, mThreadHandle.thread, TRUE, INFINITE) << std::endl;;
+	/*if (WaitForMultipleObjects(threadCount + 1, mThreadHandle.thread, TRUE, INFINITE))
+	{*/
+		
+		mThreadHandle.destroyThread();
+	//}
 
 }
 
@@ -75,7 +76,6 @@ Renderer::Renderer()
 
 DWORD Renderer::renderPixel(LPVOID threadData)
 {
-	//Pixel *tempOffset = reinterpret_cast<Pixel*>(threadData);
 	/* Doing Z-fractal
 	*****
 		*
@@ -130,33 +130,12 @@ void Renderer::calculatePixelColor(int offsetAlongWidth, int offsetAlongHeight)
 	Color tempColor = sampler->getAveragedSampleListColor();
 	float depth = sampler->getAveragedDepth();
 	int sampleCount = sampler->getSampleBucketSize();
-	//uchar aiwehi = 1;
-	//#ifdef  _DEBUG || RELEASE_DEBUG
-	//	std::cout << "Color of (" << i << "," << j << ") pixel = (" << tempColor.r << ", " << tempColor.g << ", " << tempColor.b << ")\n";
-	//	//std::cout << "Checking uchar behavior " << aiwehi << std::endl;
-	//	std::cout << "SampleCount for(" << i << "," << j << ") pixel = " << sampleCount << std::endl;
-	//#endif
 	int pixel = offsetAlongHeight * imageWidth + offsetAlongWidth;
-	//std::cout << "Let's print pixel" << pixel << "and its color = (" << tempColor.r<<","<<tempColor.g<<","<<tempColor.b<<")\n";
-	renderingImage[pixel] = tempColor; /*hitInfo.node->GetMaterial()->Shade(pixelSamples[k].ray, hitInfo, lights, 7);*/
-	
-	if(hitInfo.operationCount > MAX_SAMPLE_COUNT)
-	{
-		operationCountImage[pixel] = Color(1.0f,0.0f,0.0f);
-	}
-	else
-	{
-		operationCountImage[pixel] = Color(0.0f, 1.0f, 0.0f);
-	}
-	
+	renderingImage[pixel] = tempColor; 
+	operationCountImage[pixel] = Color(1.0f,0.0f,0.0f) * static_cast<float>(hitInfo.operationCount/BIGFLOAT);
 	zBufferImage[pixel] = depth;
 	sampleCountImage[pixel] = sampleCount;
 	sampler->resetSampler();
 	delete sampler;
 }
-//
-//
-//
-//
-//
-//
+

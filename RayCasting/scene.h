@@ -2,8 +2,8 @@
 ///
 /// \file       scene.h 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    9.0
-/// \date       October 28, 2015
+/// \version    11.0
+/// \date       November 11, 2015
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
@@ -57,28 +57,10 @@ class Ray
 {
 public:
 	Point3 p, dir;
-	size_t hitCount;
-	Ray() { hitCount = 0; }
-	Ray(const Point3 &_p, const Point3 &_dir) :
-		p(_p),
-		dir(_dir),
-		hitCount(0)
-	{
-		
-	}
-	Ray(const Ray &r) : 
-		p(r.p),
-		dir(r.dir),
-		hitCount(r.hitCount)
-	{
-		
-	}
 
-	void incrementHitCount()
-	{
-		hitCount++;
-	}
-		
+	Ray() {}
+	Ray(const Point3 &_p, const Point3 &_dir) : p(_p), dir(_dir) {}
+	Ray(const Ray &r) : p(r.p), dir(r.dir) {}
 	void Normalize() { dir.Normalize(); }
 };
 
@@ -172,20 +154,9 @@ struct HitInfo
 	const Node *node;	// the object node that was hit
 	bool front;			// true if the ray hits the front side, false if the ray hits the back side
 	int mtlID;			// sub-material index
-	size_t	operationCount; //For counting th eoperation i.e. intersection with all samples/pixel
-
-	HitInfo() 
-	{ Init(); }
-	void Init()
-	{
-		z=BIGFLOAT;
-		node=NULL;
-		front=true;
-		uvw.Set(0.5f,0.5f,0.5f);
-		duvw[0].Zero();
-		duvw[1].Zero(); mtlID=0;
-		operationCount = 0;
-	}
+	int operationCount;
+	HitInfo() { Init(); }
+	void Init() { z = BIGFLOAT; node = NULL; front = true; uvw.Set(0.5f, 0.5f, 0.5f); duvw[0].Zero(); duvw[1].Zero(); mtlID = 0; operationCount = 0; }
 };
 
 //-------------------------------------------------------------------------------
@@ -504,7 +475,10 @@ public:
 		}
 		return childBoundBox;
 	}
-	const Box& GetChildBoundBox() const { return childBoundBox; }
+	const Box& GetChildBoundBox() const
+	{
+		return childBoundBox;
+	}
 
 	// Object management
 	const Object*	GetNodeObj() const { return obj; }
@@ -563,46 +537,52 @@ private:
 	uchar	*zbufferImg;
 	uchar	*sampleCount;
 	uchar	*sampleCountImg;
-	Color24* operationCountImage;
+	Color24 *operationCountImage;
+	uchar	*irradComp;
 	int		width, height;
 	int		numRenderedPixels;
 public:
-	RenderImage() : img(nullptr), zbuffer(nullptr), zbufferImg(nullptr), sampleCount(nullptr), sampleCountImg(nullptr), operationCountImage(nullptr),width(0), height(0), numRenderedPixels(0) {}
+	RenderImage() : img(NULL), zbuffer(NULL), zbufferImg(NULL), sampleCount(NULL), sampleCountImg(NULL), irradComp(NULL), width(0), height(0), numRenderedPixels(0) {}
 	void Init(int w, int h)
 	{
 		width=w;
 		height=h;
 		if (img) delete [] img;
 		img = new Color24[width*height];
-
 		if (zbuffer) delete [] zbuffer;
 		zbuffer = new float[width*height];
 		if (zbufferImg) delete [] zbufferImg;
-		zbufferImg = nullptr;
-
+		zbufferImg = NULL;
 		if ( sampleCount ) delete [] sampleCount;
 		sampleCount = new uchar[width*height];
 		if ( sampleCountImg ) delete [] sampleCountImg;
-		sampleCountImg = nullptr;
-
-		if (operationCountImage) delete operationCountImage;
-		operationCountImage = new Color24[width*height];
-
+		sampleCountImg = NULL;
+		if ( irradComp ) delete [] irradComp;
+		irradComp = NULL;
 		ResetNumRenderedPixels();
+	}
+	void AllocateIrradianceComputationImage()
+	{
+		if ( ! irradComp ) irradComp = new uchar[width*height];
+		for ( int i=0; i<width*height; i++ ) irradComp[i] = 0;
 	}
 
 	int			GetWidth() const	{ return width; }
 	int			GetHeight() const	{ return height; }
 	Color24*	GetPixels()			{ return img; }
+	Color24*    GetOperationCountImage()
+	{
+		if(!operationCountImage)
+		{
+			operationCountImage = new Color24[width*height];
+		}
+		return operationCountImage;
+	}
 	float*		GetZBuffer()		{ return zbuffer; }
 	uchar*		GetZBufferImage()	{ return zbufferImg; }
 	uchar*		GetSampleCount()	{ return sampleCount; }
 	uchar*		GetSampleCountImage(){ return sampleCountImg; }
-
-	Color24* GetOperationCountImage()
-	{
-		return operationCountImage;
-	}
+	uchar*		GetIrradianceComputationImage() { return irradComp; }
 
 	void	ResetNumRenderedPixels()		{ numRenderedPixels=0; }
 	int		GetNumRenderedPixels() const	{ return numRenderedPixels; }
@@ -657,35 +637,14 @@ public:
 		return smax;
 	}
 
-	int ComputeOperationCountImage()
-	{
-		int size = width * height;
-		if (sampleCountImg) delete[] sampleCountImg;
-		sampleCountImg = new uchar[size];
-
-		uchar smin = 255, smax = 0;
-		for (int i = 0; i<size; i++) {
-			if (smin > sampleCount[i]) smin = sampleCount[i];
-			if (smax < sampleCount[i]) smax = sampleCount[i];
-		}
-		if (smax == smin) {
-			for (int i = 0; i<size; i++) sampleCountImg[i] = 0;
-		}
-		else {
-			for (int i = 0; i<size; i++) {
-				int c = (255 * (sampleCount[i] - smin)) / (smax - smin);
-				if (c < 0) c = 0;
-				if (c > 255) c = 255;
-				sampleCountImg[i] = c;
-			}
-		}
-		return smax;
-	}
-
 	bool SaveImage (const char *filename, bool flipped=false) const { return SavePPM(filename,&img[0].r,3,flipped); }
-	bool SaveOperationCountImage(const char *filename, bool flipped = false) const { return SavePPM(filename, &img[0].r, 3, flipped); }
 	bool SaveZImage(const char *filename, bool flipped=false) const { return SavePPM(filename,zbufferImg,1,flipped); }
 	bool SaveSampleCountImage(const char *filename, bool flipped=false) const { return SavePPM(filename,sampleCountImg,1,flipped); }
+	bool SaveIrradianceComputationImage(const char *filename, bool flipped=false) const { return SavePPM(filename,irradComp,1,flipped); }
+	bool SaveOperationCountImage(const char *filename, bool flipped = false)
+	{
+		return SavePPM(filename, &img[0].r, 3, flipped);
+	}
 
 private:
 	bool SavePPM(const char *filename, uchar *data, int compCount, bool flipped) const

@@ -13,7 +13,7 @@ public :
 	void setSampleOrigin(Point3);
 	Point3 getTargetPosition();
 	void setTargetPosition(Point3);
-	SphereSampler(int, int, float, Point3, Point3);
+	SphereSampler(int, int, float, Point3 i_origin = Point3(0.0f,0.0f,0.0f), Point3 i_target = Point3(0.0f,0.0f,0.0f));
 private :
 	float radius;
 	Point3 sampleOrigin;

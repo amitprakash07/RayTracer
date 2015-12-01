@@ -14,6 +14,10 @@ bool TriObj::TraceBVHNode(const Ray& ray, HitInfo& hInfo, int hitSide, unsigned 
 				isHit |= IntersectTriangle(ray, hInfo, hitSide, bvh.GetNodeElements(nodeID)[i]);
 			}
 		}
+		else
+		{
+			isHit = false;
+		}
 	}
 	else
 	{
