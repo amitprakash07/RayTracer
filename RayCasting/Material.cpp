@@ -129,18 +129,16 @@ Point3 getReflectionVector(Point3 view, Point3 normal)
 
 Point3 getPerturbedNormal(Point3 normal, Point3 hitPoint, float i_glossiness)
 {
-	float radius = tan(i_glossiness * (M_PI / 180));
-	Sampler *sphereSampler = new SphereSampler(5, 5, radius);
-	sphereSampler->generateSamples();
-	Point3 randomOffset = sphereSampler->getSample(getRandomNumber(5)).getOffset();
-	delete sphereSampler;
-	randomOffset += hitPoint;
-	/*Point3 u;
-	Point3 v;
-	getOrthoNormalBasisVector(normal, u, v);
-	*/
-	//To - Do Need to do vector calculation to meet into normal coordinate - Confused on this
-	return (normal + randomOffset).GetNormalized();
+	if (i_glossiness > 0.0f)
+	{
+		float radius = tan(i_glossiness * (M_PI / 180));
+		Sampler *sphereSampler = new SphereSampler(5, 5, radius);
+		sphereSampler->generateSamples();
+		Point3 randomOffset = sphereSampler->getSample(getRandomNumber(5)).getOffset();
+		delete sphereSampler;
+		return (normal + randomOffset).GetNormalized();
+	}
+	return normal;
 }
 
 

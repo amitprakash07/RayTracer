@@ -65,12 +65,12 @@ inline Point3 getSphericalCoordinates(float i_radius, float i_theta, float i_phi
 {
 	i_theta = i_theta * (M_PI / 180);
 	i_phi = i_phi * (M_PI / 180);
-	Point3 cameraRight = (camera.dir ^ camera.up).GetNormalized();
+	/*Point3 cameraRight = (camera.dir ^ camera.up).GetNormalized();*/
 	Point3 sphericalCoordinate;
 	//sphericalCoordinate = (i_radius * sin(i_theta) * sin(i_phi))*cameraRight + (i_radius * sin(i_theta) * cos(i_phi))*camera.dir + (i_radius * cos(i_theta)) * camera.up;
 	sphericalCoordinate.x = i_radius * sin(i_theta) * sin(i_phi);
-	sphericalCoordinate.z = i_radius * cos(i_theta);
-	sphericalCoordinate.y = i_radius * sin(i_theta) * cos(i_phi);
+	sphericalCoordinate.y = i_radius * cos(i_theta);
+	sphericalCoordinate.z = i_radius * sin(i_theta) * cos(i_phi);
 	return sphericalCoordinate;
 }
 

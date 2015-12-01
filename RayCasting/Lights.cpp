@@ -32,9 +32,9 @@ Color PointLight::Illuminate(const Point3& p, const Point3& N) const
 	{
 		getOrthoNormalBasisVector(lightDir, vectorU, vectorV);
 		Point3 offset = randomCircleSampler->getSample(i).getOffset();
-		Point3 samplePosition = position + offset.x*vectorU + offset*vectorV;
+		Point3 samplePosition = position + offset.x*vectorU + offset*vectorV ;
 		Ray sampleRay;
-		sampleRay.dir = samplePosition - p;
+		sampleRay.dir = samplePosition + Direction(p);
 		sampleRay.p = p;
 		randomCircleSampler->setSampleColor(i, Shadow(sampleRay)* intensity);
 		randomCircleSampler->setIsSampleHit(i, true);

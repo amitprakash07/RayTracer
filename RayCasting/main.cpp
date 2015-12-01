@@ -11,7 +11,7 @@
 #define LOAD_FILE "SoftShadowsGlossySurface.xml"
 //#define LOAD_FILE "white_teapot_GI.xml"
 //#define LOAD_FILE "CornellBoxForGI.xml"
-#define THREADCOUNT 300
+#define THREADCOUNT 8
 
 extern RenderImage renderImage;
 //#define LOAD_FILE "XMLFile.xml"
