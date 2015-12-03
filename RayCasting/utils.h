@@ -108,12 +108,12 @@ inline void getOrthoNormalBasisVector(Point3 i_up, Point3 &o_out_vector /*U*/, P
 	while (!foundRandomVector)
 	{
 		randomVectorW = getRandomVector();
-		float randomCosineAngle = 0.75; /*static_cast<float>(rand()) / static_cast<float>(RAND_MAX)*/;
 		if (i_up.Dot(randomVectorW) < RANDOMCOSINEANGLE)
 		{
 			foundRandomVector = true;
-			o_out_vector = i_up.Cross(randomVectorW).GetNormalized();
+			o_out_vector = i_up.Cross(randomVectorW);
 			o_vector_right = i_up.Cross(o_out_vector).GetNormalized();
+			o_out_vector.Normalize();
 		}
 	}
 }

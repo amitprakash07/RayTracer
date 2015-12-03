@@ -2,7 +2,8 @@
 #include <time.h>
 #include "utils.h"
 
-SphereSampler::SphereSampler(int i_minSampleCount, int i_maxSampleCount, float i_radius, Point3 i_origin, Point3 i_target)
+SphereSampler::SphereSampler(int i_minSampleCount, int i_maxSampleCount, 
+	float i_radius, Point3 i_origin, Point3 i_target)
 {
 	sampleOrigin = i_origin;
 	initSampler(i_minSampleCount, i_maxSampleCount);
@@ -10,7 +11,8 @@ SphereSampler::SphereSampler(int i_minSampleCount, int i_maxSampleCount, float i
 	targetPosition = i_target;
 }
 
-void SphereSampler::init(int i_minSampleCount, int i_maxSampleCount, float i_radius, Point3 i_origin, Point3 i_target)
+void SphereSampler::init(int i_minSampleCount, int i_maxSampleCount, 
+	float i_radius, Point3 i_origin, Point3 i_target)
 {
 	sampleOrigin = i_origin;
 	initSampler(i_minSampleCount, i_maxSampleCount);
