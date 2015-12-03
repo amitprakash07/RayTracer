@@ -6,7 +6,7 @@
 class I_IndirectIlluminate
 {
 public:
-	virtual Color indirectIlluminate() = 0;
+	virtual Color indirectIlluminate(HitInfo) = 0;
 	I_IndirectIlluminate(){}
 	virtual ~I_IndirectIlluminate(){}
 };

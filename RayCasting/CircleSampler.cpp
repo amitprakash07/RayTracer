@@ -45,7 +45,6 @@ void CircleSampler::generateSamples(float, float)
 {
 	clearSamples();
 	increaseSampleCount();	
-	srand(time(nullptr));
 	Sample tempSample;
 	for (int i = 0; i < getCurrentSampleCount(); i++)
 	{

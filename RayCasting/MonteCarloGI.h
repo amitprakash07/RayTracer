@@ -3,10 +3,11 @@
 
 #include "IIndirectLight.h"
 
+
 class MonteCarloGI:public I_IndirectIlluminate
 {
 public:
-	Color indirectIlluminate() override;
+	Color indirectIlluminate(HitInfo) override;
 	MonteCarloGI();
 	~MonteCarloGI();
 private:

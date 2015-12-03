@@ -15,7 +15,6 @@ void RandomSampler::generateSamples(float pixelIndexAlongWidth, float pixelIndex
 {
 	clearSamples();
 	increaseSampleCount();
-	srand(time(nullptr));
 	Point2 tempOffset;
 	Sample tempSample;
 	for (int i = 0; i < getCurrentSampleCount(); ++i)

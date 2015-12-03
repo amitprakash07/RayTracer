@@ -26,7 +26,6 @@ inline Ray calculatePixelCoords(int pixelPositionAlongWidth,
 	else
 	{
 		camera_l = 1 / (tan((camera.fov / 2) * (M_PI / 180)));
-		//imagePlaneHeight = 2.0f;
 	}
 
 	Point3 Sx = cameraRight;
@@ -34,10 +33,10 @@ inline Ray calculatePixelCoords(int pixelPositionAlongWidth,
 	Point3 pixel;
 	Point3 k = camera.pos + camera_l* camera.dir;// -cameraRight + camera.up;
 	float flipped_i = camera.imgHeight - pixelPositonAlongHeight - 1;
-	pixel = k + /*((( * aspectRatio * (pixelPositionAlongWidth  + positionInsidePixel.x)) / camera.imgWidth) - aspectRatio)*Sx + */
+	pixel = k + 
 		(imagePlaneHeight * aspectRatio * ((2 * ((pixelPositionAlongWidth + positionInsidePixel.x) / camera.imgWidth)) - 1))*Sx +
 		(imagePlaneHeight * ((2*((flipped_i + positionInsidePixel.y) / camera.imgHeight)) - 1))*Sy;
-		/*((((flipped_i + positionInsidePixel.y) * imagePlaneHeight) / camera.imgHeight) - 1)* Sy;*/
+		
 	Ray sampleRay;
 	Sample cameraSample;
 	if(camera.dof > 0.0f)
@@ -45,10 +44,9 @@ inline Ray calculatePixelCoords(int pixelPositionAlongWidth,
 		Sampler *circleRandomSampler = new CircleSampler(10, 10, camera.dof, camera.pos, camera.pos);
 		circleRandomSampler->generateSamples();
 		int sampleCount = circleRandomSampler->getCurrentSampleCount();
-		srand(time(nullptr));
 		cameraSample = circleRandomSampler->getSample(static_cast<int>(static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * sampleCount));
 		Point3 offset = cameraSample.getOffset();
-		sampleRay.p = camera.pos + offset.x* cameraRight + offset.y * camera.up;
+		sampleRay.p = camera.pos + offset;
 		sampleRay.dir = (pixel - sampleRay.p).GetNormalized();
 		delete circleRandomSampler;
 	}

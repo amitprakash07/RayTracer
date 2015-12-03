@@ -7,11 +7,13 @@
 
 //#define LOAD_FILE "CornellBox.xml"
 //#define LOAD_FILE "Box.xml"
-//#define LOAD_FILE "DepthOfField.xml"
-#define LOAD_FILE "SoftShadowsGlossySurface.xml"
+#define LOAD_FILE "DepthOfField.xml"
+//#define LOAD_FILE "SoftShadowsGlossySurface.xml"
+//#define LOAD_FILE "SoftShadowsGlossySurface_simple.xml"
 //#define LOAD_FILE "white_teapot_GI.xml"
 //#define LOAD_FILE "CornellBoxForGI.xml"
-#define THREADCOUNT 8
+#define THREADCOUNT 10
+#include <ctime>
 
 extern RenderImage renderImage;
 //#define LOAD_FILE "XMLFile.xml"
@@ -20,12 +22,13 @@ extern RenderImage renderImage;
 //Ray pixelRay;
 int main(void)
 {
+	srand(time(nullptr));	
 	myEngine::Timing::Clock *clock = myEngine::Timing::Clock::createAndStart();
 	int temp = LoadScene(LOAD_FILE);
 
 	Renderer::startRendering(THREADCOUNT);
 
-	ShowViewport();
+	
 
 	renderImage.SaveImage("RayCasted.ppm");
 	renderImage.ComputeZBufferImage();
@@ -35,7 +38,7 @@ int main(void)
 	clock->updateDeltaTime();
 	double time = clock->getdeltaTime();
 	printf("Time to render ray casting  %f", clock->getdeltaTime());
-
+	ShowViewport();
 	
 	
 }

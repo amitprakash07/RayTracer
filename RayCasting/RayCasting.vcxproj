@@ -247,6 +247,8 @@
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />
+    <ClCompile Include="MonteCarloGI.cpp" />
+    <ClCompile Include="PathTracer.cpp" />
     <ClCompile Include="PlaneIntersection.cpp" />
     <ClCompile Include="RandomSampler.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -263,6 +265,7 @@
     <ClCompile Include="xmlload.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AdditionalImage.h" />
     <ClInclude Include="CircleSampler.h" />
     <ClInclude Include="cyCodeBase\cyBVH.h" />
     <ClInclude Include="cyCodeBase\cyColor.h" />

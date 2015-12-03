@@ -120,8 +120,8 @@ void Renderer::calculatePixelColor(int offsetAlongWidth, int offsetAlongHeight)
 				sampler->setIsSampleHit(k, true);
 			}
 			else
-			{
-				sampler->setSampleColor(k, noHitPixelColor);
+			{				
+				sampler->setSampleColor(k, background.Sample(sampleRay.dir)/*noHitPixelColor*/);
 			}
 			sampler->setHitInfo(k, hitInfo);
 		}

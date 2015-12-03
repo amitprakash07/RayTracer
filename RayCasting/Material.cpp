@@ -88,7 +88,7 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 				if (TraceRay(&rootNode, reflectionViewVector, reflectionRayHit, HIT_FRONT))
 				{
 					bounceCount--;
-					fromReflection = reflectionRayHit.node->GetMaterial()->Shade(reflectionViewVector, reflectionRayHit, lights, bounceCount);
+					fromReflection = reflectionRayHit.node->GetMaterial()->Shade(reflectionViewVector, reflectionRayHit, lights, --bounceCount);
 					reflectiveComp = reflectionTotal * fromReflection;
 				}
 				else

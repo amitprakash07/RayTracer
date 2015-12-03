@@ -44,20 +44,35 @@ void SphereSampler::generateSamples(float, float)
 {
 	clearSamples();
 	increaseSampleCount();
-	srand(time(nullptr));
 	Sample tempSample;
+	bool rejectionSampling = true;
+	bool sampleFound = false;
+	float x, y, z;
 	for (int i = 0; i < getCurrentSampleCount(); i++)
 	{
-		float sampleRadius = sqrt(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * radius;
-		float theta = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 180.0f;
-		float phi = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 360.0f;
-		Point3 offset = getSphericalCoordinates(sampleRadius, theta, phi);
-		tempSample.setOffset(offset);
-		/*Point3 tempTargetPosition = targetPosition + offset;
-		tempSample.setRay(Ray(sampleOrigin, tempTargetPosition - sampleOrigin));*/
+		if (rejectionSampling)
+		{
+			while (!sampleFound)
+			{
+				x = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+				y = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+				z = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+				if ((x*x + y*y + z*z) <= (radius *radius))
+					sampleFound = true;;
+			}
+			sampleFound = false;
+			tempSample.setOffset(Point3(x, y, z));
+		}
+		else
+		{
+			float sampleRadius = sqrt(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * radius;
+			float theta = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 180.0f;
+			float phi = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 360.0f;
+			Point3 offset = getSphericalCoordinates(sampleRadius, theta, phi);
+			tempSample.setOffset(offset);
+		}
 		addSampleToList(tempSample);
 	}
-
 }
 
 

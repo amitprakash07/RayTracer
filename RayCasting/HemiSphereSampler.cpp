@@ -74,7 +74,6 @@ void HemiSphereSampler::generateSampleUnifromly()
 
 void HemiSphereSampler::generateSamplesWithImportanceSampling()
 {
-	srand(time(nullptr));
 	Sample tempSample;
 	float tempRadius = 0.0f;
 	float theta = 0.0f;
