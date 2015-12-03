@@ -13,6 +13,7 @@ public:
 	void setSampleOrigin(Point3);
 	Point3 getTargetPosition();
 	void setTargetPosition(Point3);
+	void init(int, int, float, Point3, Point3);
 	CircleSampler(int, int, float, Point3, Point3);
 private:
 	float radius;

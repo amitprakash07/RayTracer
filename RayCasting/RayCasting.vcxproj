@@ -274,7 +274,6 @@
     <ClInclude Include="cyCodeBase\cyMatrix4.h" />
     <ClInclude Include="cyCodeBase\cyPoint.h" />
     <ClInclude Include="cyCodeBase\cyTriMesh.h" />
-    <ClInclude Include="HaltonSequence.h" />
     <ClInclude Include="HemiSphereSampler.h" />
     <ClInclude Include="IIndirectLight.h" />
     <ClInclude Include="LightColor.h" />

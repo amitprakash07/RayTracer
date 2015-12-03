@@ -180,9 +180,6 @@
     <ClInclude Include="RandomSampler.h">
       <Filter>Sampling</Filter>
     </ClInclude>
-    <ClInclude Include="HaltonSequence.h">
-      <Filter>Sampling</Filter>
-    </ClInclude>
     <ClInclude Include="Sample.h">
       <Filter>Sampling</Filter>
     </ClInclude>

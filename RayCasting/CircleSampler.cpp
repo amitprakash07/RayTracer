@@ -10,6 +10,15 @@ CircleSampler::CircleSampler(int i_minSampleCount, int i_maxSampleCount, float i
 	targetPosition = i_target;
 }
 
+void CircleSampler::init(int i_minSampleCount, int i_maxSampleCount, float i_radius, Point3 i_origin, Point3 i_target)
+{
+	sampleOrigin = i_origin;
+	initSampler(i_minSampleCount, i_maxSampleCount);
+	radius = i_radius;
+	targetPosition = i_target;
+}
+
+
 float CircleSampler::getRadius()
 {
 	return radius;

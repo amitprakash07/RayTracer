@@ -11,6 +11,15 @@ RandomSampler::RandomSampler(int i_minSampleCount, int i_maxSampleCount, double 
 	setCurrentSampleCount(0);
 }
 
+void RandomSampler::init(int i_minSampleCount, int i_maxSampleCount, double i_minVarianceThreshold, double i_maxVarianceThreshold)
+{
+	setMinThreshold(i_minVarianceThreshold);
+	setMaxThreshold(i_maxVarianceThreshold);
+	initSampler(i_minSampleCount, i_maxSampleCount);
+	setCurrentSampleCount(0);
+}
+
+
 void RandomSampler::generateSamples(float pixelIndexAlongWidth, float pixelIndexAlongHeight)
 {
 	clearSamples();

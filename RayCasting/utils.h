@@ -75,7 +75,7 @@ inline Point3 getSphericalCoordinates(float i_radius, float i_theta, float i_phi
 inline Point3 getCoordinateOnCircle(float i_radius, float i_theta)
 {
 	i_theta = i_theta * (M_PI / 180);
-	Point3 cameraRight = (camera.dir ^ camera.up).GetNormalized();
+	//Point3 cameraRight = (camera.dir ^ camera.up).GetNormalized();
 	Point3 circularCoordinate;
 	//circularCoordinate = (i_radius * cos(i_theta))*cameraRight + (i_radius * sin(i_theta))*camera.up;
 	circularCoordinate.x = i_radius * cos(i_theta);
@@ -88,7 +88,6 @@ inline Point3 getCoordinateOnCircle(float i_radius, float i_theta)
 inline Point3 getRandomVector()
 {
 	Point3 randomVector;
-	srand(time(nullptr));
 	randomVector.x = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 	randomVector.y = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 	randomVector.z = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
@@ -97,7 +96,6 @@ inline Point3 getRandomVector()
 
 inline int getRandomNumber(int max)
 {
-	srand(time(nullptr));
 	return static_cast<int>((static_cast<float>(rand()) / static_cast<float>(RAND_MAX))*max);
 }
 

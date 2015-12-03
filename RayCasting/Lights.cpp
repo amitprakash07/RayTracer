@@ -24,17 +24,16 @@ Color PointLight::Illuminate(const Point3& p, const Point3& N) const
 	Sampler * randomCircleSampler = new CircleSampler(SHADOW_SAMPLE_COUNT, SHADOW_SAMPLE_COUNT, size, p, position);
 	randomCircleSampler->generateSamples();
 	Point3 randomVectorW;
-	Point3 vectorU;
-	Point3 vectorV;
+	Point3 vectorU = Point3(0.0f,0.0f,0.0f);
+	Point3 vectorV = Point3(0.0f, 0.0f, 0.0f);
 	Point3 lightDir = Direction(p);
-	srand(time(nullptr));
 	for (int i = 0; i < randomCircleSampler->getCurrentSampleCount(); ++i)
 	{
 		getOrthoNormalBasisVector(lightDir, vectorU, vectorV);
 		Point3 offset = randomCircleSampler->getSample(i).getOffset();
-		Point3 samplePosition = position + offset.x*vectorU + offset*vectorV ;
+		Point3 samplePosition = /*position +*/ offset.x*vectorU + offset.y*vectorV ;
 		Ray sampleRay;
-		sampleRay.dir = samplePosition + Direction(p);
+		sampleRay.dir = samplePosition +  lightDir /*Direction(samplePosition)*/;
 		sampleRay.p = p;
 		randomCircleSampler->setSampleColor(i, Shadow(sampleRay)* intensity);
 		randomCircleSampler->setIsSampleHit(i, true);

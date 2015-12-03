@@ -14,6 +14,10 @@ public:
 		int i_maxSampleCount,
 		double i_minVarianceThreshold,
 		double i_maxVarianceThreshold);
+	void init(int i_minSampleCount,
+		int i_maxSampleCount,
+		double i_minVarianceThreshold,
+		double i_maxVarianceThreshold);
 	~RandomSampler(){}
 	
 };
