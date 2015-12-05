@@ -21,8 +21,8 @@ float GenLight::Shadow(Ray ray, float t_max)
 
 Color PointLight::Illuminate(const Point3& p, const Point3& N) const
 {
-	Sampler * randomCircleSampler = new CircleSampler(SHADOW_SAMPLE_COUNT, SHADOW_SAMPLE_COUNT, size, p, position);
-	randomCircleSampler->generateSamples();
+	CircleSampler randomCircleSampler = CircleSampler(SHADOW_SAMPLE_COUNT, SHADOW_SAMPLE_COUNT, size, p, position);
+	randomCircleSampler.generateSamples();
 	Point3 randomVectorW;
 	Point3 vectorU = Point3(0.0f,0.0f,0.0f);
 	Point3 vectorV = Point3(0.0f, 0.0f, 0.0f);
@@ -31,18 +31,18 @@ Color PointLight::Illuminate(const Point3& p, const Point3& N) const
 	Point3 offset;
 	Point3 samplePosition;
 	getOrthoNormalBasisVector(lightDir, vectorU, vectorV);
-	for (int i = 0; i < randomCircleSampler->getCurrentSampleCount(); ++i)
+	for (int i = 0; i < randomCircleSampler.getCurrentSampleCount(); ++i)
 	{		
-		offset = randomCircleSampler->getSample(i).getOffset();
+		offset = randomCircleSampler.getSample(i).getOffset();
 		samplePosition = position + offset.x*vectorU + offset.y*vectorV ;
 		sampleRay.dir = samplePosition +  lightDir /*Direction(samplePosition)*/;
 		sampleRay.p = p;
-		randomCircleSampler->setSampleColor(i, Shadow(sampleRay)* intensity);
-		randomCircleSampler->setIsSampleHit(i, true);
+		randomCircleSampler.setSampleColor(i, Shadow(sampleRay)* intensity);
+		randomCircleSampler.setIsSampleHit(i, true);
 	}
 
-	Color returnColor = randomCircleSampler->getAveragedSampleListColor();
-	delete randomCircleSampler;
+	Color returnColor = randomCircleSampler.getAveragedSampleListColor();
+	//delete randomCircleSampler;
 	return returnColor;
 }
 

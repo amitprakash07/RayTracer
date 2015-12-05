@@ -65,7 +65,15 @@ void SphereSampler::generateSamples(float, float)
 	{
 		if (rejectionSampling)
 		{
-			while (!sampleFound)
+			while (true)
+			{
+				x = 2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f;
+				y = 2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f;
+				z = 2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f;
+				if ((x*x + y*y + z*z) <= (radius *radius))
+					break;
+			}
+			/*while (!sampleFound)
 			{
 				x = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 				y = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
@@ -73,7 +81,7 @@ void SphereSampler::generateSamples(float, float)
 				if ((x*x + y*y + z*z) <= (radius *radius))
 					sampleFound = true;;
 			}
-			sampleFound = false;
+			sampleFound = false;*/
 			tempSample.setOffset(Point3(x, y, z));
 		}
 		else

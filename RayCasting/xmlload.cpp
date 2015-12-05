@@ -16,6 +16,7 @@
 #include "texture.h"
 #include "tinyxml/tinyxml.h"
 
+
 //-------------------------------------------------------------------------------
 
 extern Node rootNode;
@@ -33,7 +34,7 @@ extern TextureList textureList;
 #ifdef WIN32
 #define COMPARE(a,b) (_stricmp(a,b)==0)
 #else
-#define COMPARE(a,b) (strcasecmp(a,b)==0)
+#define COMPARE(a,b) (_stricmp(a,b)==0)
 #endif
 
 //-------------------------------------------------------------------------------

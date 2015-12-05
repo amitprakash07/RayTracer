@@ -132,10 +132,9 @@ Point3 getPerturbedNormal(Point3 normal, Point3 hitPoint, float i_glossiness)
 	if (i_glossiness > 0.0f)
 	{
 		float radius = tan(i_glossiness * (M_PI / 180));
-		Sampler *sphereSampler = new SphereSampler(5, 5, radius);
-		sphereSampler->generateSamples();
-		Point3 randomOffset = sphereSampler->getSample(getRandomNumber(5)).getOffset();
-		delete sphereSampler;
+		SphereSampler sphereSampler = SphereSampler(5, 5, radius);
+		sphereSampler.generateSamples();
+		Point3 randomOffset = sphereSampler.getSample(getRandomNumber(0,5)).getOffset();
 		return (normal + randomOffset).GetNormalized();
 	}
 	return normal;

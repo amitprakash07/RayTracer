@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include "RandomSampler.h"
 #include "RayIntersection.h"
+#include "MonteCarloGI.h"
 
 
 
@@ -8,6 +9,8 @@
 #define MAX_SAMPLE_COUNT 16
 #define MIN_VARIANCE 0.0001
 #define MAX_VARIANCE 0.001
+#define GI_SAMPLE 10
+#define GI_BOUNCE_COUNT 1
 #include <iostream>
 
 
@@ -47,7 +50,16 @@ void Renderer::startRendering(size_t i_threadCount)
 	zBufferImage = renderImage.GetZBuffer();
 	sampleCountImage = renderImage.GetSampleCount();
 	operationCountImage = renderImage.GetOperationCountImage();
-	int *threadVal = new int[threadCount];
+
+	for (int i = 0; i < renderImage.GetHeight(); ++i)
+	{
+		for (int j = 0; j < renderImage.GetWidth(); ++j)
+		{
+			calculatePixelColor(j, i);
+		}
+	}
+
+	/*int *threadVal = new int[threadCount];
 	for (size_t i = 0; i < threadCount; i++)
 	{
 		
@@ -62,12 +74,12 @@ void Renderer::startRendering(size_t i_threadCount)
 	}
 
 	std::cout << std::endl << WaitForMultipleObjects(threadCount + 1, mThreadHandle.thread, TRUE, INFINITE) << std::endl;;
-	/*if (WaitForMultipleObjects(threadCount + 1, mThreadHandle.thread, TRUE, INFINITE))
-	{*/
+	if (WaitForMultipleObjects(threadCount + 1, mThreadHandle.thread, TRUE, INFINITE))
+	{
 		
 		mThreadHandle.destroyThread();
-	//}
-
+	}
+*/
 }
 
 Renderer::Renderer()
@@ -106,36 +118,40 @@ void Renderer::calculatePixelColor(int offsetAlongWidth, int offsetAlongHeight)
 {
 	HitInfo hitInfo;
 	Color noHitPixelColor = { 0,0,0 };
-	Sampler *sampler = new RandomSampler(MIN_SAMPLE_COUNT, MAX_SAMPLE_COUNT, MIN_VARIANCE, MAX_VARIANCE);
-	while (sampler->needMoreSamples())
+	Color finalColor = { 0,0,0 };
+	RandomSampler sampler = RandomSampler(MIN_SAMPLE_COUNT, MAX_SAMPLE_COUNT, MIN_VARIANCE, MAX_VARIANCE);
+	/*MonteCarloGI *mGI = new MonteCarloGI();*/
+	while (sampler.needMoreSamples())
 	{
-		sampler->generateSamples(offsetAlongWidth, offsetAlongHeight);
-		for (int k = 0; k < sampler->getSampleBucketSize(); ++k)
+		sampler.generateSamples(offsetAlongWidth, offsetAlongHeight);
+		for (int k = 0; k < sampler.getSampleBucketSize(); ++k)
 		{
 			hitInfo.Init();
-			Ray sampleRay = sampler->getSampleRay(k);
+			Ray sampleRay = sampler.getSampleRay(k);
 			if (TraceRay(&rootNode, sampleRay, hitInfo))
 			{
-				sampler->setSampleColor(k, hitInfo.node->GetMaterial()->Shade(sampleRay, hitInfo, lights, 7));
-				sampler->setIsSampleHit(k, true);
+				finalColor = hitInfo.node->GetMaterial()->Shade(sampleRay, hitInfo, lights, 7);
+				//finalColor += mGI->indirectIlluminate(hitInfo, lights, GI_BOUNCE_COUNT, GI_SAMPLE);
+				sampler.setSampleColor(k, finalColor);
+				sampler.setIsSampleHit(k, true);
 			}
 			else
 			{				
-				sampler->setSampleColor(k, background.Sample(sampleRay.dir)/*noHitPixelColor*/);
+				sampler.setSampleColor(k, background.Sample(sampleRay.dir)/*noHitPixelColor*/);
 			}
-			sampler->setHitInfo(k, hitInfo);
+			sampler.setHitInfo(k, hitInfo);
 		}
 	}
 
-	Color tempColor = sampler->getAveragedSampleListColor();
-	float depth = sampler->getAveragedDepth();
-	int sampleCount = sampler->getSampleBucketSize();
+	Color tempColor = sampler.getAveragedSampleListColor();
+	float depth = sampler.getAveragedDepth();
+	int sampleCount = sampler.getSampleBucketSize();
 	int pixel = offsetAlongHeight * imageWidth + offsetAlongWidth;
 	renderingImage[pixel] = tempColor; 
 	operationCountImage[pixel] = Color(1.0f,0.0f,0.0f) * static_cast<float>(hitInfo.operationCount/BIGFLOAT);
 	zBufferImage[pixel] = depth;
 	sampleCountImage[pixel] = sampleCount;
-	sampler->resetSampler();
-	delete sampler;
+	sampler.resetSampler();
+	//delete mGI;
+	//delete sampler;	
 }
-

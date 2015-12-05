@@ -105,6 +105,9 @@
     <ClCompile Include="PathTracer.cpp">
       <Filter>Lights</Filter>
     </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>Maths</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="tinyxml\tinyxml.h">

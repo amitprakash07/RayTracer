@@ -1,5 +1,4 @@
 #include "CircleSampler.h"
-#include <time.h>
 #include "utils.h"
 
 CircleSampler::CircleSampler(int i_minSampleCount, int i_maxSampleCount, float i_radius, Point3 i_origin, Point3 i_target)
@@ -57,8 +56,8 @@ void CircleSampler::generateSamples(float, float)
 	Sample tempSample;
 	for (int i = 0; i < getCurrentSampleCount(); i++)
 	{
-		float sampleRadius = sqrt(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * radius;
-		float theta = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 360.0f;
+		float sampleRadius = sqrt(getRandomNumber(0,radius));
+		float theta = getRandomNumber(0, 360);
 		tempSample.setOffset(getCoordinateOnCircle(sampleRadius, theta));
 		/*Point3 tempTargetPosition = targetPosition + tempSample.getOffset();
 		tempSample.setRay(Ray(sampleOrigin, tempTargetPosition - sampleOrigin));*/

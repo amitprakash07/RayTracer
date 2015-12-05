@@ -1,5 +1,4 @@
 #include "RandomSampler.h"
-#include <time.h>
 #include  "utils.h"
 #include "Sampler.h"
 
@@ -28,8 +27,8 @@ void RandomSampler::generateSamples(float pixelIndexAlongWidth, float pixelIndex
 	Sample tempSample;
 	for (int i = 0; i < getCurrentSampleCount(); ++i)
 	{
-		tempOffset.x = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-		tempOffset.y = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+		tempOffset.x = getRandomNumber(0, 1);
+		tempOffset.y = getRandomNumber(0, 1);
 		tempSample.setRay(calculatePixelCoords(pixelIndexAlongWidth, pixelIndexAlongHeight, tempOffset));
 		tempSample.setColor(Color(0.0f));
 		addSampleToList(tempSample);

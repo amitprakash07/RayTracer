@@ -7,7 +7,7 @@
 class MonteCarloGI:public I_IndirectIlluminate
 {
 public:
-	Color indirectIlluminate(HitInfo) override;
+	Color indirectIlluminate(HitInfo&, LightList&, int, int) override;
 	MonteCarloGI();
 	~MonteCarloGI();
 private:

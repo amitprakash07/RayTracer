@@ -6,7 +6,7 @@
 class PathTracer :public I_IndirectIlluminate
 {
 public:
-	Color indirectIlluminate(HitInfo) override;
+	//Color indirectIlluminate(HitInfo&, LightList&, int) override;
 	PathTracer();
 	~PathTracer();
 private:

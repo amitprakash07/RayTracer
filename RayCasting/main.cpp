@@ -12,7 +12,7 @@
 //#define LOAD_FILE "SoftShadowsGlossySurface_simple.xml"
 //#define LOAD_FILE "white_teapot_GI.xml"
 //#define LOAD_FILE "CornellBoxForGI.xml"
-#define THREADCOUNT 8
+#define THREADCOUNT 12
 #include <ctime>
 
 extern RenderImage renderImage;
@@ -25,7 +25,7 @@ int main(void)
 	srand(time(nullptr));	
 	myEngine::Timing::Clock *clock = myEngine::Timing::Clock::createAndStart();
 	int temp = LoadScene(LOAD_FILE);
-
+	
 	Renderer::startRendering(THREADCOUNT);
 	renderImage.SaveImage("RayCasted.ppm");
 	renderImage.ComputeZBufferImage();
