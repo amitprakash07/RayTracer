@@ -4,6 +4,9 @@
 #include <windows.h>
 #include "objects.h"
 
+void BeginRender();
+inline void StopRender(){}
+
 struct __threadHandles
 {
 	HANDLE *thread;
@@ -51,7 +54,7 @@ public:
 	static void startRendering(size_t);
 private:
 	static DWORD WINAPI renderPixel(LPVOID threadData);
-	static void calculatePixelColor(int, int);
+	static void calculatePixelColor(Node&, LightList&, int, int);
 	static size_t threadCount;
 	static ThreadHandle mThreadHandle;
 	//static Pixel * mPixelOffset;

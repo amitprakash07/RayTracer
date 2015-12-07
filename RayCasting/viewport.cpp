@@ -9,7 +9,7 @@
 ///
 //-------------------------------------------------------------------------------
 
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+//#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include "scene.h"
 #include "objects.h"
 #include "lights.h"
@@ -17,11 +17,12 @@
 #include <stdlib.h>
 #include <GL/glut.h>
 #include <time.h>
+#include "Renderer.h"
 
 //-------------------------------------------------------------------------------
 
-void BeginRender() {}	// Called to start rendering (renderer must run in a separate thread)
-void StopRender() {}	// Called to end rendering (if it is not already finished)
+//void BeginRender(){}	// Called to start rendering (renderer must run in a separate thread)
+//void StopRender() {}	// Called to end rendering (if it is not already finished)
 
 extern Node rootNode;
 extern Camera camera;
@@ -216,7 +217,7 @@ void DrawScene()
 	if ( camera.dof > 0 ) {
 		Point3 v = camera.dir ^ camera.up;
 		float r = sqrtf(float(rand())/RAND_MAX)*camera.dof;
-		float a = M_PI * 2.0f * float(rand())/RAND_MAX;
+		float a = static_cast<float>(M_PI * 2.0f * float(rand())/RAND_MAX);
 		p += r*cosf(a)*v + r*sinf(a)*u;
 	}
 	gluLookAt( p.x, p.y, p.z,  t.x, t.y, t.z,  u.x, u.y, u.z );
@@ -291,7 +292,7 @@ void GlutDisplay()
 				DrawScene();
 				glReadPixels( 0, 0, camera.imgWidth, camera.imgHeight, GL_RGB, GL_UNSIGNED_BYTE, dofBuffer );
 				for ( int i=0; i<camera.imgWidth*camera.imgHeight; i++ ) {
-					dofImage[i] = (dofImage[i]*dofDrawCount + dofBuffer[i].ToColor())/(dofDrawCount+1);
+					dofImage[i] = (dofImage[i] * dofDrawCount + dofBuffer[i].ToColor()) / (dofDrawCount + 1);
 				}
 				dofDrawCount++;
 			}
@@ -381,7 +382,7 @@ void GlutKeyboard(unsigned char key, int x, int y)
 				DrawScene();
 				glReadPixels( 0, 0, renderImage.GetWidth(), renderImage.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, renderImage.GetPixels() );
 			}
-			startTime = time(NULL);
+			startTime = static_cast<int>(time(nullptr));
 			BeginRender();
 			break;
 		case MODE_RENDERING:

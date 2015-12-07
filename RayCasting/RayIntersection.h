@@ -26,7 +26,7 @@ inline bool TraceRay(Node * i_node, Ray &ray, HitInfo &hInfo, int hitside = HIT_
 		for (int i = 0; i < i_node->GetNumChild(); i++)
 		{
 			Node * childNode = i_node->GetChild(i);
-			if (i_node->GetChildBoundBox().IntersectRay(ray, hInfo.z))
+			if (i_node->GetChildBoundBox().IntersectRay(ray, BIGFLOAT))
 			{
 				bool tempHit = TraceRay(childNode, transformedRay, hInfo, hitside);
 				if (tempHit)

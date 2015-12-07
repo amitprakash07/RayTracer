@@ -38,6 +38,9 @@
     <Filter Include="Sampling">
       <UniqueIdentifier>{026a06a9-ecbe-478d-84a7-cbe09ddfec2b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Threading">
+      <UniqueIdentifier>{52e659ce-098e-477b-8dd3-2365282a7b27}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="viewport.cpp">
@@ -107,6 +110,15 @@
     </ClCompile>
     <ClCompile Include="utils.cpp">
       <Filter>Maths</Filter>
+    </ClCompile>
+    <ClCompile Include="Threading\Event.cpp">
+      <Filter>Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="Threading\Mutex.cpp">
+      <Filter>Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="Threading\Semaphore.cpp">
+      <Filter>Threading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -206,6 +218,18 @@
       <Filter>Sampling</Filter>
     </ClInclude>
     <ClInclude Include="AdditionalImage.h" />
+    <ClInclude Include="Threading\Event.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="Threading\Mutex.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="Threading\Semaphore.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="Threading\WaitableObject.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Time\TimeHelper.inl">

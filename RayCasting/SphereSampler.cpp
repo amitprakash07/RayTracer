@@ -67,9 +67,9 @@ void SphereSampler::generateSamples(float, float)
 		{
 			while (true)
 			{
-				x = 2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f;
-				y = 2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f;
-				z = 2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 1.0f;
+				x = 2.0f * getRandomNumber(0,1) - 1.0f;
+				y = 2.0f * getRandomNumber(0,1) - 1.0f;
+				z = 2.0f * getRandomNumber(0,1) - 1.0f;
 				if ((x*x + y*y + z*z) <= (radius *radius))
 					break;
 			}

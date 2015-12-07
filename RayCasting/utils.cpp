@@ -25,16 +25,16 @@ float getRandomNumber(int i_rangeA, int i_rangeB)
 void getOrthoNormalBasisVector(Point3 i_up, Point3 &o_out_vector /*U*/, Point3& o_vector_right /*v*/)
 {
 	Point3 randomVectorW;
-	bool foundRandomVector = false;
-	while (!foundRandomVector)
+	//bool foundRandomVector = false;
+	while (true)
 	{
 		randomVectorW = getRandomVector();
 		if (i_up.Dot(randomVectorW) < RANDOMCOSINEANGLE)
 		{
-			foundRandomVector = true;
 			o_out_vector = i_up.Cross(randomVectorW);
 			o_vector_right = i_up.Cross(o_out_vector).GetNormalized();
 			o_out_vector.Normalize();
+			break;
 		}
 	}
 }
@@ -42,9 +42,9 @@ void getOrthoNormalBasisVector(Point3 i_up, Point3 &o_out_vector /*U*/, Point3& 
 Point3 getRandomVector()
 {
 	Point3 randomVector;
-	randomVector.x = getRandomNumber(0, 1);
-	randomVector.y = getRandomNumber(0, 1);
-	randomVector.z = getRandomNumber(0, 1);
+	randomVector.x = 2.0f * getRandomNumber(0, 1) - 1.0f;
+	randomVector.y = 2.0f * getRandomNumber(0, 1) - 1.0f;
+	randomVector.z = 2.0f * getRandomNumber(0, 1) - 1.0f;
 	return randomVector;
 }
 
@@ -101,6 +101,7 @@ Ray calculatePixelCoords(int pixelPositionAlongWidth,
 
 	Ray sampleRay;
 	Sample cameraSample;
+
 	if (camera.dof > 0.0f)
 	{
 		CircleSampler circleRandomSampler = CircleSampler(10, 10, camera.dof, camera.pos, camera.pos);

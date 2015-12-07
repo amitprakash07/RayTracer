@@ -46,50 +46,112 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	///@name Constructors
 	cyMatrix4f() {}	///< Default constructor
-	cyMatrix4f( const cyMatrix4f &matrix ) { for ( int i=0; i<16; i++ ) data[i]=matrix.data[i]; } ///< Copy constructor
+	cyMatrix4f(const cyMatrix4f& matrix)
+	{
+		for (int i = 0; i < 16; i++)
+			data[i] = matrix.data[i];
+	} ///< Copy constructor
 
 
 	//////////////////////////////////////////////////////////////////////////
 	///@name Set & Get Methods
 
 	/// Set all the values as zero
-	void Zero() { for ( int i=0; i<16; i++ ) data[ i ] = 0; }
+	void Zero()
+	{
+		for (int i = 0; i < 16; i++)
+			data[i] = 0;
+	}
+
 	/// Set Matrix using an array of 16 values
-	void Set( const float *array ) { for ( int i=0; i<16; i++ ) data[ i ] = array[ i ]; } 
+	void Set(const float* array)
+	{
+		for (int i = 0; i < 16; i++)
+			data[i] = array[i];
+	}
+
 	/// Set Matrix using x,y,z vectors and coordinate center
-	void Set( const cyPoint3f &x, const cyPoint3f &y, const cyPoint3f &z, const cyPoint3f &pos );
+	void Set(const cyPoint3f& x, const cyPoint3f& y, const cyPoint3f& z, const cyPoint3f& pos);
 	/// Set Matrix using x,y,z,w vectors
-	void Set( const cyPoint4f &x, const cyPoint4f &y, const cyPoint4f &z, const cyPoint4f &w );
+	void Set(const cyPoint4f& x, const cyPoint4f& y, const cyPoint4f& z, const cyPoint4f& w);
 	/// Set Matrix using position, normal, and approximate x direction
-	void Set( const cyPoint3f &pos, const cyPoint3f &normal, cyPoint3f &dir );
+	void Set(const cyPoint3f& pos, const cyPoint3f& normal, cyPoint3f& dir);
+
 	/// Converts the matrix to an identity matrix
-	void SetIdentity() { for(int i=0; i<16; i++) data[i]=(i%5==0) ? 1.0f : 0.0f ; }
+	void SetIdentity()
+	{
+		for (int i = 0; i < 16; i++)
+			data[i] = (i % 5 == 0) ? 1.0f : 0.0f ;
+	}
+
 	/// Set View Matrix using position, target and approximate up vector
-	void SetView( const cyPoint3f &pos, const cyPoint3f &target, cyPoint3f &up );
+	void SetView(const cyPoint3f& pos, const cyPoint3f& target, cyPoint3f& up);
 	/// Set Matrix using normal, and approximate x direction
-	void SetNormal(const cyPoint3f &normal, cyPoint3f &dir );
+	void SetNormal(const cyPoint3f& normal, cyPoint3f& dir);
+
 	/// Set as rotation matrix around x axis
-	void SetRotationX( float theta ) { SetRotation( cyPoint3f(1,0,0), theta ); }
+	void SetRotationX(float theta)
+	{
+		SetRotation(cyPoint3f(1, 0, 0), theta);
+	}
+
 	/// Set as rotation matrix around y axis
-	void SetRotationY( float theta ) { SetRotation( cyPoint3f(0,1,0), theta ); }
+	void SetRotationY(float theta)
+	{
+		SetRotation(cyPoint3f(0, 1, 0), theta);
+	}
+
 	/// Set as rotation matrix around z axis
-	void SetRotationZ( float theta ) { SetRotation( cyPoint3f(0,0,1), theta ); }
+	void SetRotationZ(float theta)
+	{
+		SetRotation(cyPoint3f(0, 0, 1), theta);
+	}
+
 	/// Set a rotation matrix about the given axis by angle theta
-	void SetRotation( cyPoint3f axis, float theta );
+	void SetRotation(cyPoint3f axis, float theta);
 	/// Set a rotation matrix about the given axis by cos and sin of angle theta
-	void SetRotation( cyPoint3f axis, float cosTheta, float sinTheta );
+	void SetRotation(cyPoint3f axis, float cosTheta, float sinTheta);
 	/// Set a rotation matrix that sets <from> unit vector to <to> unit vector
-	void SetRotation( cyPoint3f from, cyPoint3f to );
+	void SetRotation(cyPoint3f from, cyPoint3f to);
 	/// Set translation matrix
-	void SetTrans( cyPoint3f move );
+	void SetTrans(cyPoint3f move);
 
 	// Get Row and Column
-	cyPoint4f GetRow( int row ) const { return cyPoint4f( data[row], data[row+4], data[row+8], data[row+12] ); }
-	void	  GetRow( int row, cyPoint4f &p ) const { p.Set( data[row], data[row+4], data[row+8], data[row+12] ); }
-	void	  GetRow( int row, float *array ) const { array[0]=data[row]; array[1]=data[row+4]; array[2]=data[row+8]; array[3]=data[row+12]; }
-	cyPoint4f GetColumn( int col ) const { return cyPoint4f( &data[col*4] ); }
-	void	  GetColumn( int col, cyPoint4f &p ) const { p.Set( &data[col*4] ); }
-	void	  GetColumn( int col, float *array ) const { array[0]=data[col*4]; array[1]=data[col*4+1]; array[2]=data[col*4+2]; array[3]=data[col*4+3]; }
+	cyPoint4f GetRow(int row) const
+	{
+		return cyPoint4f(data[row], data[row + 4], data[row + 8], data[row + 12]);
+	}
+
+	void GetRow(int row, cyPoint4f& p) const
+	{
+		p.Set(data[row], data[row + 4], data[row + 8], data[row + 12]);
+	}
+
+	void GetRow(int row, float* array) const
+	{
+		array[0] = data[row];
+		array[1] = data[row + 4];
+		array[2] = data[row + 8];
+		array[3] = data[row + 12];
+	}
+
+	cyPoint4f GetColumn(int col) const
+	{
+		return cyPoint4f(&data[col * 4]);
+	}
+
+	void GetColumn(int col, cyPoint4f& p) const
+	{
+		p.Set(&data[col * 4]);
+	}
+
+	void GetColumn(int col, float* array) const
+	{
+		array[0] = data[col * 4];
+		array[1] = data[col * 4 + 1];
+		array[2] = data[col * 4 + 2];
+		array[3] = data[col * 4 + 3];
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -99,13 +161,22 @@ public:
 
 	// Overloaded comparison operators 
 	bool operator==( const cyMatrix4f & ) const;		///< compare equal
-	bool operator!=( const cyMatrix4f &right ) const { return ! ( *this == right ); } ///< compare not equal
+	bool operator!=(const cyMatrix4f& right) const
+	{
+		return ! (*this == right);
+	} ///< compare not equal
 
 	// Overloaded subscript operators
-	float& operator()( int row, int column );					///< subscript operator
-	float& operator[](int i) { return data[i]; }				///< subscript operator
-	const float& operator()( int row, int column ) const;		///< constant subscript operator
-	const float& operator[](int i) const { return data[i]; }	///< constant subscript operator
+	float& operator()(int row, int column); ///< subscript operator
+	float& operator[](int i)
+	{
+		return data[i];
+	} ///< subscript operator
+	const float& operator()(int row, int column) const; ///< constant subscript operator
+	const float& operator[](int i) const
+	{
+		return data[i];
+	}	///< constant subscript operator
 
 	// Unary operators
 	cyMatrix4f operator - () const;	///< negative matrix
@@ -136,8 +207,17 @@ public:
 	void SetTranspose();			///< Transpose this matrix
 	cyMatrix4f Transpose() const;	///< return Transpose of this matrix
 	void Invert();					///< Invert this matrix
-	void GetInverse( cyMatrix4f &inverse ) const { inverse=*this; inverse.Invert(); }	///< Get the inverse of this matrix
-	cyMatrix4f GetInverse() const { cyMatrix4f inv(*this); inv.Invert(); return inv; }	///< Get the inverse of this matrix
+	void GetInverse(cyMatrix4f& inverse) const
+	{
+		inverse = *this;
+		inverse.Invert();
+	} ///< Get the inverse of this matrix
+	cyMatrix4f GetInverse() const
+	{
+		cyMatrix4f inv(*this);
+		inv.Invert();
+		return inv;
+	}	///< Get the inverse of this matrix
 
 	//////////////////////////////////////////////////////////////////////////
 

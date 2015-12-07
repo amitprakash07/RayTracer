@@ -259,6 +259,9 @@
     <ClCompile Include="SphereSampler.cpp" />
     <ClCompile Include="SphereIntersection.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="Threading\Event.cpp" />
+    <ClCompile Include="Threading\Mutex.cpp" />
+    <ClCompile Include="Threading\Semaphore.cpp" />
     <ClCompile Include="Time\FrameTime.cpp" />
     <ClCompile Include="tinyxml\tinystr.cpp" />
     <ClCompile Include="tinyxml\tinyxml.cpp" />
@@ -295,6 +298,10 @@
     <ClInclude Include="scene.h" />
     <ClInclude Include="SphereSampler.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="Threading\Event.h" />
+    <ClInclude Include="Threading\Mutex.h" />
+    <ClInclude Include="Threading\Semaphore.h" />
+    <ClInclude Include="Threading\WaitableObject.h" />
     <ClInclude Include="Time\FrameTime.h" />
     <ClInclude Include="Time\TimeHelper.h" />
     <ClInclude Include="tinyxml\tinystr.h" />

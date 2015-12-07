@@ -58,10 +58,22 @@ class Ray
 public:
 	Point3 p, dir;
 
-	Ray() {}
-	Ray(const Point3 &_p, const Point3 &_dir) : p(_p), dir(_dir) {}
-	Ray(const Ray &r) : p(r.p), dir(r.dir) {}
-	void Normalize() { dir.Normalize(); }
+	Ray()
+	{
+	}
+
+	Ray(const Point3& _p, const Point3& _dir) : p(_p), dir(_dir)
+	{
+	}
+
+	Ray(const Ray& r) : p(r.p), dir(r.dir)
+	{
+	}
+
+	void Normalize()
+	{
+		dir.Normalize();
+	}
 };
 
 //-------------------------------------------------------------------------------
@@ -72,16 +84,36 @@ public:
 	Point3 pmin, pmax;
 
 	// Constructors
-	Box() { Init(); }
-	Box(const Point3 &_pmin, const Point3 &_pmax) : pmin(_pmin), pmax(_pmax) {}
-	Box(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax ) : pmin(xmin,ymin,zmin), pmax(xmax,ymax,zmax) {}
-	Box(const float *dim) : pmin(dim), pmax(&dim[3]) {}
+	Box()
+	{
+		Init();
+	}
+
+	Box(const Point3& _pmin, const Point3& _pmax) : pmin(_pmin), pmax(_pmax)
+	{
+	}
+
+	Box(float xmin, float ymin, float zmin, float xmax, float ymax, float zmax) : pmin(xmin, ymin, zmin), pmax(xmax, ymax, zmax)
+	{
+	}
+
+	Box(const float* dim) : pmin(dim), pmax(&dim[3])
+	{
+	}
 
 	// Initializes the box, such that there exists no point inside the box (i.e. it is empty).
-	void Init() { pmin.Set(BIGFLOAT,BIGFLOAT,BIGFLOAT); pmax.Set(-BIGFLOAT,-BIGFLOAT,-BIGFLOAT); }
+	void Init()
+	{
+		pmin.Set(BIGFLOAT,BIGFLOAT,BIGFLOAT);
+		pmax.Set(-BIGFLOAT, -BIGFLOAT, -BIGFLOAT);
+	}
 
 	// Returns true if the box is empty; otherwise, returns false.
-	bool IsEmpty() const { return pmin.x>pmax.x || pmin.y>pmax.y || pmin.z>pmax.z; }
+	bool IsEmpty() const
+	{
+		bool result = pmin.x > pmax.x || pmin.y > pmax.y || pmin.z > pmax.z;
+		return result;
+	}
 
 	// Returns one of the 8 corner point of the box in the following order:
 	// 0:(x_min,y_min,z_min), 1:(x_max,y_min,z_min)
@@ -100,23 +132,35 @@ public:
 	// Enlarges the box such that it includes the given point p.
 	void operator += (const Point3 &p)
 	{
-		for ( int i=0; i<3; i++ ) {
-			if ( pmin[i] > p[i] ) pmin[i] = p[i];
-			if ( pmax[i] < p[i] ) pmax[i] = p[i];
+		for (int i = 0; i < 3; i++)
+		{
+			if (pmin[i] > p[i])
+				pmin[i] = p[i];
+			if (pmax[i] < p[i])
+				pmax[i] = p[i];
 		}
 	}
 
 	// Enlarges the box such that it includes the given box b.
-	void operator += (const Box &b)
+	void operator +=(const Box& b)
 	{
-		for ( int i=0; i<3; i++ ) {
-			if ( pmin[i] > b.pmin[i] ) pmin[i] = b.pmin[i];
-			if ( pmax[i] < b.pmax[i] ) pmax[i] = b.pmax[i];
+		for (int i = 0; i < 3; i++)
+		{
+			if (pmin[i] > b.pmin[i])
+				pmin[i] = b.pmin[i];
+			if (pmax[i] < b.pmax[i])
+				pmax[i] = b.pmax[i];
 		}
 	}
 
 	// Returns true if the point is inside the box; otherwise, returns false.
-	bool IsInside(const Point3 &p) const { for ( int i=0; i<3; i++ ) if ( pmin[i] > p[i] || pmax[i] < p[i] ) return false; return true; }
+	bool IsInside(const Point3& p) const
+	{
+		for (int i = 0; i < 3; i++)
+			if (pmin[i] > p[i] || pmax[i] < p[i])
+				return false;
+		return true;
+	}
 
 	// Returns true if the ray intersects with the box for any parameter that is smaller than t_max; otherwise, returns false.
 	bool IntersectRay(const Ray &r, float t_max) const;
@@ -127,10 +171,11 @@ public:
 inline float Halton(int index, int base)
 {
 	float r = 0;
-	float f = 1.0f / (float)base;
-	for ( int i=index; i>0; i/=base ) {
-		r += f * (i%base);
-		f /= (float) base;
+	float f = 1.0f / static_cast<float>(base);
+	for ( int i=index; i>0; i/=base )
+	{
+		r += f * (i % base);
+		f /= static_cast<float>( base);
 	}
 	return r;
 }
@@ -156,7 +201,18 @@ struct HitInfo
 	int mtlID;			// sub-material index
 	int operationCount;
 	HitInfo() { Init(); }
-	void Init() { z = BIGFLOAT; node = NULL; front = true; uvw.Set(0.5f, 0.5f, 0.5f); duvw[0].Zero(); duvw[1].Zero(); mtlID = 0; operationCount = 0; }
+
+	void Init()
+	{
+		z = BIGFLOAT;
+		node = NULL;
+		front = true;
+		uvw.Set(0.5f, 0.5f, 0.5f);
+		duvw[0].Zero();
+		duvw[1].Zero();
+		mtlID = 0;
+		operationCount = 0;
+	}
 };
 
 //-------------------------------------------------------------------------------
@@ -168,35 +224,73 @@ private:
 
 public:
 	ItemBase() : name(NULL) {}
-	virtual ~ItemBase() { if ( name ) delete [] name; }
 
-	const char* GetName() const { return name ? name : ""; }
+	virtual ~ItemBase()
+	{
+		if (name)
+			delete [] name;
+	}
+
+	const char* GetName() const
+	{
+		return name ? name : "";
+	}
+
 	void SetName(const char *newName)
 	{
-		if ( name ) delete [] name;
-		if ( newName ) {
+		if ( name ) 
+			delete [] name;
+		if ( newName )
+		{
 			int n = strlen(newName);
 			name = new char[n+1];
-			for ( int i=0; i<n; i++ ) name[i] = newName[i];
+			for ( int i=0; i<n; i++ )
+				name[i] = newName[i];
 			name[n] = '\0';
-		} else { name = NULL; }
+		} 
+		else  name = nullptr; 
 	}
 };
 
 template <class T> class ItemList : public std::vector<T*>
 {
 public:
-	virtual ~ItemList() { DeleteAll(); }
-	void DeleteAll() { int n=(int)this->size(); for ( int i=0; i<n; i++ ) if ( this->at(i) ) delete this->at(i); }
+	virtual ~ItemList()
+	{
+		DeleteAll();
+	}
+
+	void DeleteAll()
+	{
+		int n = (int)this->size();
+		for (int i = 0; i < n; i++)
+			if (this->at(i))
+				delete this->at(i);
+	}
 };
 
 
 template <class T> class ItemFileList
 {
 public:
-	void Clear() { list.DeleteAll(); }
-	void Append( T* item, const char *name ) { list.push_back( new FileInfo(item,name) ); }
-	T* Find( const char *name ) const { int n=list.size(); for ( int i=0; i<n; i++ ) if ( list[i] && strcmp(name,list[i]->GetName())==0 ) return list[i]->GetObj(); return NULL; }
+	void Clear()
+	{
+		list.DeleteAll();
+	}
+
+	void Append(T* item, const char* name)
+	{
+		list.push_back(new FileInfo(item, name));
+	}
+
+	T* Find(const char* name) const
+	{
+		int n = list.size();
+		for (int i = 0; i < n; i++)
+			if (list[i] && strcmp(name, list[i]->GetName()) == 0)
+				return list[i]->GetObj();
+		return nullptr;
+	}
 
 private:
 	class FileInfo : public ItemBase
@@ -204,12 +298,37 @@ private:
 	private:
 		T *item;
 	public:
-		FileInfo() : item(NULL) {}
-		FileInfo(T *_item, const char *name) : item(_item) { SetName(name); }
-		~FileInfo() { Delete(); }
-		void Delete() { if (item) delete item; item=NULL; }
-		void SetObj(T *_item) { Delete(); item=_item; }
-		T* GetObj() { return item; }
+		FileInfo() : item(NULL)
+		{
+		}
+
+		FileInfo(T* _item, const char* name) : item(_item)
+		{
+			SetName(name);
+		}
+
+		~FileInfo()
+		{
+			Delete();
+		}
+
+		void Delete()
+		{
+			if (item)
+				delete item;
+			item = NULL;
+		}
+
+		void SetObj(T* _item)
+		{
+			Delete();
+			item = _item;
+		}
+
+		T* GetObj()
+		{
+			return item;
+		}
 	};
 
 	ItemList<FileInfo> list;
@@ -224,26 +343,84 @@ private:
 	Point3 pos;						// Translation part of the transformation matrix
 	mutable Matrix3 itm;			// Inverse of the transformation matrix (cached)
 public:
-	Transformation() : pos(0,0,0) { tm.SetIdentity(); itm.SetIdentity(); }
-	const Matrix3& GetTransform() const { return tm; }
-	const Point3& GetPosition() const { return pos; }
-	const Matrix3&	GetInverseTransform() const { return itm; }
+	Transformation() : pos(0, 0, 0)
+	{
+		tm.SetIdentity();
+		itm.SetIdentity();
+	}
 
-	Point3 TransformTo( const Point3 &p ) const { return itm * (p - pos); }	// Transform to the local coordinate system
-	Point3 TransformFrom( const Point3 &p ) const { return tm*p + pos; }	// Transform from the local coordinate system
+	const Matrix3& GetTransform() const
+	{
+		return tm;
+	}
+
+	const Point3& GetPosition() const
+	{
+		return pos;
+	}
+
+	const Matrix3& GetInverseTransform() const
+	{
+		return itm;
+	}
+
+	Point3 TransformTo(const Point3& p) const
+	{
+		return itm * (p - pos);
+	} // Transform to the local coordinate system
+
+	Point3 TransformFrom(const Point3& p) const
+	{
+		return tm * p + pos;
+	} // Transform from the local coordinate system
 
 	// Transforms a vector to the local coordinate system (same as multiplication with the inverse transpose of the transformation)
-	Point3 VectorTransformTo( const Point3 &dir ) const { return TransposeMult(tm,dir); }
+	Point3 VectorTransformTo(const Point3& dir) const
+	{
+		return TransposeMult(tm, dir);
+	}
 
 	// Transforms a vector from the local coordinate system (same as multiplication with the inverse transpose of the transformation)
-	Point3 VectorTransformFrom( const Point3 &dir ) const { return TransposeMult(itm,dir); }
+	Point3 VectorTransformFrom(const Point3& dir) const
+	{
+		return TransposeMult(itm, dir);
+	}
 
-	void Translate(Point3 p) { pos+=p; }
-	void Rotate(Point3 axis, float degree) { Matrix3 m; m.SetRotation(axis,degree*(float)M_PI/180.0f); Transform(m); }
-	void Scale(float sx, float sy, float sz) { Matrix3 m; m.Zero(); m[0]=sx; m[4]=sy; m[8]=sz; Transform(m); }
-	void Transform(const Matrix3 &m) { tm=m*tm; pos=m*pos; tm.GetInverse(itm); }
+	void Translate(Point3 p)
+	{
+		pos += p;
+	}
 
-	void InitTransform() { pos.Zero(); tm.SetIdentity(); itm.SetIdentity(); }
+	void Rotate(Point3 axis, float degree)
+	{
+		Matrix3 m;
+		m.SetRotation(axis, degree * (float)M_PI / 180.0f);
+		Transform(m);
+	}
+
+	void Scale(float sx, float sy, float sz)
+	{
+		Matrix3 m;
+		m.Zero();
+		m[0] = sx;
+		m[4] = sy;
+		m[8] = sz;
+		Transform(m);
+	}
+
+	void Transform(const Matrix3& m)
+	{
+		tm = m * tm;
+		pos = m * pos;
+		tm.GetInverse(itm);
+	}
+
+	void InitTransform()
+	{
+		pos.Zero();
+		tm.SetIdentity();
+		itm.SetIdentity();
+	}
 
 private:
 	// Multiplies the given vector with the transpose of the given matrix
@@ -302,7 +479,14 @@ public:
 class MaterialList : public ItemList<Material>
 {
 public:
-	Material* Find( const char *name ) { int n=size(); for ( int i=0; i<n; i++ ) if ( at(i) && strcmp(name,at(i)->GetName())==0 ) return at(i); return NULL; }
+	Material* Find(const char* name)
+	{
+		int n = size();
+		for (int i = 0; i < n; i++)
+			if (at(i) && strcmp(name, at(i)->GetName()) == 0)
+				return at(i);
+		return NULL;
+	}
 };
 
 //-------------------------------------------------------------------------------
@@ -315,22 +499,29 @@ public:
 
 	// Evaluates the color around the given uvw location using the derivatives duvw
 	// by calling the Sample function multiple times.
-	virtual Color Sample(const Point3 &uvw, const Point3 duvw[2], bool elliptic=true) const
+	virtual Color Sample(const Point3& uvw, const Point3 duvw[2], bool elliptic = true) const
 	{
 		Color c = Sample(uvw);
-		if ( duvw[0].LengthSquared() + duvw[1].LengthSquared() == 0 ) return c;
-		for ( int i=1; i<TEXTURE_SAMPLE_COUNT; i++ ) {
-			float x = Halton(i,2);
-			float y = Halton(i,3);
-			if ( elliptic ) {
-				float r = sqrtf(x)*0.5f;
-				x = r*sinf(y*(float)M_PI*2);
-				y = r*cosf(y*(float)M_PI*2);
-			} else {
-				if ( x > 0.5f ) x-=1;
-				if ( y > 0.5f ) y-=1;
+		if (duvw[0].LengthSquared() + duvw[1].LengthSquared() == 0)
+			return c;
+		for (int i = 1; i < TEXTURE_SAMPLE_COUNT; i++)
+		{
+			float x = Halton(i, 2);
+			float y = Halton(i, 3);
+			if (elliptic)
+			{
+				float r = sqrtf(x) * 0.5f;
+				x = r * sinf(y * (float)M_PI * 2);
+				y = r * cosf(y * (float)M_PI * 2);
 			}
-			c += Sample( uvw + x*duvw[0] + y*duvw[1] );
+			else
+			{
+				if (x > 0.5f)
+					x -= 1;
+				if (y > 0.5f)
+					y -= 1;
+			}
+			c += Sample(uvw + x * duvw[0] + y * duvw[1]);
 		}
 		return c / float(TEXTURE_SAMPLE_COUNT);
 	}
@@ -343,9 +534,9 @@ protected:
 	static Point3 TileClamp(const Point3 &uvw)
 	{
 		Point3 u;
-		u.x = uvw.x - (int) uvw.x;
-		u.y = uvw.y - (int) uvw.y;
-		u.z = uvw.z - (int) uvw.z;
+		u.x = uvw.x - static_cast<int>(uvw.x);
+		u.y = uvw.y - static_cast<int>(uvw.y);
+		u.z = uvw.z - static_cast<int>(uvw.z);
 		if ( u.x < 0 ) u.x += 1;
 		if ( u.y < 0 ) u.y += 1;
 		if ( u.z < 0 ) u.z += 1;
@@ -363,22 +554,41 @@ typedef ItemFileList<Texture> TextureList;
 class TextureMap : public Transformation
 {
 public:
-	TextureMap() : texture(NULL) {}
-	TextureMap(Texture *tex) : texture(tex) {}
-	void SetTexture(Texture *tex) { texture = tex; }
-
-	virtual Color Sample(const Point3 &uvw) const { return texture ? texture->Sample(TransformTo(uvw)) : Color(0,0,0); }
-	virtual Color Sample(const Point3 &uvw, const Point3 duvw[2], bool elliptic=true) const
+	TextureMap() : texture(nullptr)
 	{
-		if ( texture == NULL ) return Color(0,0,0);
-		Point3 u = TransformTo(uvw);
-		Point3 d[2];
-		d[0] = TransformTo(duvw[0]+uvw)-u;
-		d[1] = TransformTo(duvw[1]+uvw)-u;
-		return texture->Sample(u,d,elliptic);
 	}
 
-	bool SetViewportTexture() const { if ( texture ) return texture->SetViewportTexture(); return false; }	// used for OpenGL display
+	TextureMap(Texture* tex) : texture(tex)
+	{
+	}
+
+	void SetTexture(Texture* tex)
+	{
+		texture = tex;
+	}
+
+	virtual Color Sample(const Point3& uvw) const
+	{
+		return texture ? texture->Sample(TransformTo(uvw)) : Color(0, 0, 0);
+	}
+
+	virtual Color Sample(const Point3& uvw, const Point3 duvw[2], bool elliptic = true) const
+	{
+		if (texture == nullptr)
+			return Color(0, 0, 0);
+		Point3 u = TransformTo(uvw);
+		Point3 d[2];
+		d[0] = TransformTo(duvw[0] + uvw) - u;
+		d[1] = TransformTo(duvw[1] + uvw) - u;
+		return texture->Sample(u, d, elliptic);
+	}
+
+	bool SetViewportTexture() const
+	{
+		if (texture)
+			return texture->SetViewportTexture();
+		return false;
+	} // used for OpenGL display
 
 private:
 	Texture *texture;
@@ -396,27 +606,60 @@ private:
 	Color color;
 	TextureMap *map;
 public:
-	TexturedColor() : color(0,0,0), map(NULL) {}
-	TexturedColor(float r, float g, float b) : color(r,g,b), map(NULL) {}
-	virtual ~TexturedColor() { if ( map ) delete map; }
+	TexturedColor() : color(0, 0, 0), map(nullptr)
+	{
+	}
 
-	void SetColor(const Color &c) { color=c; }
-	void SetTexture(TextureMap *m) { if ( map ) delete map; map=m; }
+	TexturedColor(float r, float g, float b) : color(r, g, b), map(nullptr)
+	{
+	}
 
-	Color GetColor() const { return color; }
-	const TextureMap* GetTexture() const { return map; }
+	virtual ~TexturedColor()
+	{
+		if (map)
+			delete map;
+	}
 
-	Color Sample(const Point3 &uvw) const { return ( map ) ? color*map->Sample(uvw) : color; }
-	Color Sample(const Point3 &uvw, const Point3 duvw[2], bool elliptic=true) const { return ( map ) ? color*map->Sample(uvw,duvw,elliptic) : color; }
+	void SetColor(const Color& c)
+	{
+		color = c;
+	}
+
+	void SetTexture(TextureMap* m)
+	{
+		if (map)
+			delete map;
+		map = m;
+	}
+
+	Color GetColor() const
+	{
+		return color;
+	}
+
+	const TextureMap* GetTexture() const
+	{
+		return map;
+	}
+
+	Color Sample(const Point3& uvw) const
+	{
+		return (map) ? color * map->Sample(uvw) : color;
+	}
+
+	Color Sample(const Point3& uvw, const Point3 duvw[2], bool elliptic = true) const
+	{
+		return (map) ? color * map->Sample(uvw, duvw, elliptic) : color;
+	}
 
 	// Returns the color value at the given direction for environment mapping.
-	Color SampleEnvironment(const Point3 &dir) const
-	{ 
-		float z = asinf(-dir.z)/float(M_PI)+0.5f;
-		float den = sqrtf(dir.x*dir.x + dir.y*dir.y)+1e-10f;
+	Color SampleEnvironment(const Point3& dir) const
+	{
+		float z = asinf(-dir.z) / float(M_PI) + 0.5f;
+		float den = sqrtf(dir.x * dir.x + dir.y * dir.y) + 1e-10f;
 		float x = dir.x / den;
 		float y = dir.y / den;
-		return Sample( Point3(0.5f,0.5f,0.0f) + z*(x*Point3(0.5f,0.5f,0) + y*Point3(-0.5f,0.5f,0)) );
+		return Sample(Point3(0.5f, 0.5f, 0.0f) + z * (x * Point3(0.5f, 0.5f, 0) + y * Point3(-0.5f, 0.5f, 0)));
 	}
 
 };
@@ -428,49 +671,109 @@ class Node : public ItemBase, public Transformation
 private:
 	Node **child;				// Child nodes
 	int numChild;				// The number of child nodes
-	Object *obj;				// Object reference (merely points to the object, but does not own the object, so it doesn't get deleted automatically)
+	Object * obj;				// Object reference (merely points to the object, but does not own the object, so it doesn't get deleted automatically)
 	Material *mtl;				// Material used for shading the object
 	Box childBoundBox;			// Bounding box of the child nodes, which does not include the object of this node, but includes the objects of the child nodes
 public:
-	Node() : child(NULL), numChild(0), obj(NULL), mtl(NULL) {}
-	virtual ~Node() { DeleteAllChildNodes(); }
+	Node() : child(nullptr), numChild(0), obj(nullptr), mtl(nullptr)
+	{
+	}
 
-	void Init() { DeleteAllChildNodes(); obj=NULL; mtl=NULL; childBoundBox.Init(); SetName(NULL); InitTransform(); } // Initialize the node deleting all child nodes
+	virtual ~Node()
+	{
+		DeleteAllChildNodes();
+	}
+
+	void Init()
+	{
+		DeleteAllChildNodes();
+		obj = nullptr;
+		mtl = nullptr;
+		childBoundBox.Init();
+		SetName(nullptr);
+		InitTransform();
+	} // Initialize the node deleting all child nodes
 
 	// Hierarchy management
-	int	 GetNumChild() const { return numChild; }
-	void SetNumChild(int n, int keepOld=false)
+	int GetNumChild() const
 	{
-		if ( n < 0 ) n=0;	// just to be sure
-		Node **nc = NULL;	// new child pointer
-		if ( n > 0 ) nc = new Node*[n];
-		for ( int i=0; i<n; i++ ) nc[i] = NULL;
-		if ( keepOld ) {
+		return numChild;
+	}
+
+	void SetNumChild(int n, int keepOld = false)
+	{
+		if (n < 0)
+			n = 0; // just to be sure
+		Node** nc = nullptr; // new child pointer
+		if (n > 0)
+			nc = new Node*[n];
+		for (int i = 0; i < n; i++)
+			nc[i] = nullptr;
+		if (keepOld)
+		{
 			int sn = min(n,numChild);
-			for ( int i=0; i<sn; i++ ) nc[i] = child[i];
+			for (int i = 0; i < sn; i++)
+				nc[i] = child[i];
 		}
-		if ( child ) delete [] child;
+		if (child)
+			delete [] child;
 		child = nc;
 		numChild = n;
 	}
-	const Node*	GetChild(int i) const		{ return child[i]; }
-	Node*		GetChild(int i)				{ return child[i]; }
-	void		SetChild(int i, Node *node)	{ child[i]=node; }
-	void		AppendChild(Node *node)		{ SetNumChild(numChild+1,true); SetChild(numChild-1,node); }
-	void		RemoveChild(int i)			{ for ( int j=i; j<numChild-1; j++) child[j]=child[j-1]; SetNumChild(numChild-1); }
-	void		DeleteAllChildNodes()		{ for ( int i=0; i<numChild; i++ ) { child[i]->DeleteAllChildNodes(); delete child[i]; } SetNumChild(0); }
+
+	const Node* GetChild(int i) const
+	{
+		return child[i];
+	}
+
+	Node* GetChild(int i)
+	{
+		return child[i];
+	}
+
+	void SetChild(int i, Node* node)
+	{
+		child[i] = node;
+	}
+
+	void AppendChild(Node* node)
+	{
+		SetNumChild(numChild + 1, true);
+		SetChild(numChild - 1, node);
+	}
+
+	void RemoveChild(int i)
+	{
+		for (int j = i; j < numChild - 1; j++)
+			child[j] = child[j - 1];
+		SetNumChild(numChild - 1);
+	}
+
+	void DeleteAllChildNodes()
+	{
+		for (int i = 0; i < numChild; i++)
+		{
+			child[i]->DeleteAllChildNodes();
+			delete child[i];
+		}
+		SetNumChild(0);
+	}
 
 	// Bounding Box
 	const Box& ComputeChildBoundBox()
 	{
 		childBoundBox.Init();
-		for ( int i=0; i<numChild; i++ ) {
+		for (int i = 0; i < numChild; i++)
+		{
 			Box childBox = child[i]->ComputeChildBoundBox();
-			Object *cobj = child[i]->GetNodeObj();
-			if ( cobj ) childBox += cobj->GetBoundBox();
-			if ( ! childBox.IsEmpty() ) {
+			Object* cobj = child[i]->GetNodeObj();
+			if (cobj)
+				childBox += cobj->GetBoundBox();
+			if (! childBox.IsEmpty())
+			{
 				// transform the box from child coordinates
-				for ( int j=0; j<8; j++ ) childBoundBox += child[i]->TransformFrom( childBox.Corner(j) );
+				for (int j = 0; j < 8; j++)
+					childBoundBox += child[i]->TransformFrom(childBox.Corner(j));
 			}
 		}
 		return childBoundBox;
@@ -537,40 +840,67 @@ private:
 	uchar	*zbufferImg;
 	uchar	*sampleCount;
 	uchar	*sampleCountImg;
-	Color24 *operationCountImage;
 	uchar	*irradComp;
 	int		width, height;
 	int		numRenderedPixels;
+	Color24 *operationCountImage;
 public:
-	RenderImage() : img(NULL), zbuffer(NULL), zbufferImg(NULL), sampleCount(NULL), sampleCountImg(NULL), irradComp(NULL), width(0), height(0), numRenderedPixels(0) {}
-	void Init(int w, int h)
+	RenderImage() : img(nullptr), zbuffer(nullptr), 
+		zbufferImg(nullptr), sampleCount(nullptr), 
+		sampleCountImg(nullptr), irradComp(nullptr), 
+		width(0), height(0), numRenderedPixels(0), operationCountImage(nullptr)
 	{
-		width=w;
-		height=h;
-		if (img) delete [] img;
-		img = new Color24[width*height];
-		if (zbuffer) delete [] zbuffer;
-		zbuffer = new float[width*height];
-		if (zbufferImg) delete [] zbufferImg;
-		zbufferImg = NULL;
-		if ( sampleCount ) delete [] sampleCount;
-		sampleCount = new uchar[width*height];
-		if ( sampleCountImg ) delete [] sampleCountImg;
-		sampleCountImg = NULL;
-		if ( irradComp ) delete [] irradComp;
-		irradComp = NULL;
-		ResetNumRenderedPixels();
-	}
-	void AllocateIrradianceComputationImage()
-	{
-		if ( ! irradComp ) irradComp = new uchar[width*height];
-		for ( int i=0; i<width*height; i++ ) irradComp[i] = 0;
 	}
 
-	int			GetWidth() const	{ return width; }
-	int			GetHeight() const	{ return height; }
-	Color24*	GetPixels()			{ return img; }
-	Color24*    GetOperationCountImage()
+	void Init(int w, int h)
+	{
+		width = w;
+		height = h;
+		if (img)
+			delete [] img;
+		img = new Color24[width * height];
+		if (zbuffer)
+			delete [] zbuffer;
+		zbuffer = new float[width * height];
+		if (zbufferImg)
+			delete [] zbufferImg;
+		zbufferImg = nullptr;
+		if (sampleCount)
+			delete [] sampleCount;
+		sampleCount = new uchar[width * height];
+		if (sampleCountImg)
+			delete [] sampleCountImg;
+		sampleCountImg = nullptr;
+		if (irradComp)
+			delete [] irradComp;
+		irradComp = nullptr;
+		ResetNumRenderedPixels();
+	}
+
+	void AllocateIrradianceComputationImage()
+	{
+		if (! irradComp)
+			irradComp = new uchar[width * height];
+		for (int i = 0; i < width * height; i++)
+			irradComp[i] = 0;
+	}
+
+	int GetWidth() const
+	{
+		return width;
+	}
+
+	int GetHeight() const
+	{
+		return height;
+	}
+
+	Color24* GetPixels()
+	{
+		return img;
+	}
+
+	Color24* GetOperationCountImage()
 	{
 		if(!operationCountImage)
 		{
@@ -578,36 +908,80 @@ public:
 		}
 		return operationCountImage;
 	}
-	float*		GetZBuffer()		{ return zbuffer; }
-	uchar*		GetZBufferImage()	{ return zbufferImg; }
-	uchar*		GetSampleCount()	{ return sampleCount; }
-	uchar*		GetSampleCountImage(){ return sampleCountImg; }
-	uchar*		GetIrradianceComputationImage() { return irradComp; }
 
-	void	ResetNumRenderedPixels()		{ numRenderedPixels=0; }
-	int		GetNumRenderedPixels() const	{ return numRenderedPixels; }
-	void	IncrementNumRenderPixel(int n)	{ numRenderedPixels+=n; }	// not thread-safe
-	bool	IsRenderDone() const			{ return numRenderedPixels >= width*height; }
+	float* GetZBuffer()
+	{
+		return zbuffer;
+	}
 
-	void	ComputeZBufferImage()
+	uchar* GetZBufferImage()
+	{
+		return zbufferImg;
+	}
+
+	uchar* GetSampleCount()
+	{
+		return sampleCount;
+	}
+
+	uchar* GetSampleCountImage()
+	{
+		return sampleCountImg;
+	}
+
+	uchar* GetIrradianceComputationImage()
+	{
+		return irradComp;
+	}
+
+	void ResetNumRenderedPixels()
+	{
+		numRenderedPixels = 0;
+	}
+
+	int GetNumRenderedPixels() const
+	{
+		return numRenderedPixels;
+	}
+
+	void IncrementNumRenderPixel(int n)
+	{
+		numRenderedPixels += n;
+	} // not thread-safe
+	bool IsRenderDone() const
+	{
+		return numRenderedPixels >= width * height;
+	}
+
+	void ComputeZBufferImage()
 	{
 		int size = width * height;
-		if (zbufferImg) delete [] zbufferImg;
+		if (zbufferImg)
+			delete [] zbufferImg;
 		zbufferImg = new uchar[size];
 
-		float zmin=BIGFLOAT, zmax=0;
-		for ( int i=0; i<size; i++ ) {
-			if ( zbuffer[i] == BIGFLOAT ) continue;
-			if ( zmin > zbuffer[i] ) zmin = zbuffer[i];
-			if ( zmax < zbuffer[i] ) zmax = zbuffer[i];
+		float zmin = BIGFLOAT, zmax = 0;
+		for (int i = 0; i < size; i++)
+		{
+			if (zbuffer[i] == BIGFLOAT)
+				continue;
+			if (zmin > zbuffer[i])
+				zmin = zbuffer[i];
+			if (zmax < zbuffer[i])
+				zmax = zbuffer[i];
 		}
-		for ( int i=0; i<size; i++ ) {
-			if ( zbuffer[i] == BIGFLOAT ) zbufferImg[i] = 0;
-			else {
-				float f = (zmax-zbuffer[i])/(zmax-zmin);
+		for (int i = 0; i < size; i++)
+		{
+			if (zbuffer[i] == BIGFLOAT)
+				zbufferImg[i] = 0;
+			else
+			{
+				float f = (zmax - zbuffer[i]) / (zmax - zmin);
 				int c = int(f * 255);
-				if ( c < 0 ) c = 0;
-				if ( c > 255 ) c = 255;
+				if (c < 0)
+					c = 0;
+				if (c > 255)
+					c = 255;
 				zbufferImg[i] = c;
 			}
 		}
@@ -616,66 +990,105 @@ public:
 	int ComputeSampleCountImage()
 	{
 		int size = width * height;
-		if (sampleCountImg) delete [] sampleCountImg;
+		if (sampleCountImg)
+			delete [] sampleCountImg;
 		sampleCountImg = new uchar[size];
 
-		uchar smin=255, smax=0;
-		for ( int i=0; i<size; i++ ) {
-			if ( smin > sampleCount[i] ) smin = sampleCount[i];
-			if ( smax < sampleCount[i] ) smax = sampleCount[i];
+		uchar smin = 255, smax = 0;
+		for (int i = 0; i < size; i++)
+		{
+			if (smin > sampleCount[i])
+				smin = sampleCount[i];
+			if (smax < sampleCount[i])
+				smax = sampleCount[i];
 		}
-		if ( smax == smin ) {
-			for ( int i=0; i<size; i++ ) sampleCountImg[i] = 0;
-		} else {
-			for ( int i=0; i<size; i++ ) {
-				int c = (255*(sampleCount[i]-smin))/(smax-smin);
-				if ( c < 0 ) c = 0;
-				if ( c > 255 ) c = 255;
+		if (smax == smin)
+		{
+			for (int i = 0; i < size; i++)
+				sampleCountImg[i] = 0;
+		}
+		else
+		{
+			for (int i = 0; i < size; i++)
+			{
+				int c = (255 * (sampleCount[i] - smin)) / (smax - smin);
+				if (c < 0)
+					c = 0;
+				if (c > 255)
+					c = 255;
 				sampleCountImg[i] = c;
 			}
 		}
 		return smax;
 	}
 
-	bool SaveImage (const char *filename, bool flipped=false) const { return SavePPM(filename,&img[0].r,3,flipped); }
-	bool SaveZImage(const char *filename, bool flipped=false) const { return SavePPM(filename,zbufferImg,1,flipped); }
-	bool SaveSampleCountImage(const char *filename, bool flipped=false) const { return SavePPM(filename,sampleCountImg,1,flipped); }
-	bool SaveIrradianceComputationImage(const char *filename, bool flipped=false) const { return SavePPM(filename,irradComp,1,flipped); }
-	bool SaveOperationCountImage(const char *filename, bool flipped = false)
+	bool SaveImage(const char* filename, bool flipped = false) const
+	{
+		return SavePPM(filename, &img[0].r, 3, flipped);
+	}
+
+	bool SaveZImage(const char* filename, bool flipped = false) const
+	{
+		return SavePPM(filename, zbufferImg, 1, flipped);
+	}
+
+	bool SaveSampleCountImage(const char* filename, bool flipped = false) const
+	{
+		return SavePPM(filename, sampleCountImg, 1, flipped);
+	}
+
+	bool SaveIrradianceComputationImage(const char* filename, bool flipped = false) const
+	{
+		return SavePPM(filename, irradComp, 1, flipped);
+	}
+
+	bool SaveOperationCountImage(const char* filename, bool flipped = false)
 	{
 		return SavePPM(filename, &img[0].r, 3, flipped);
 	}
 
 private:
-	bool SavePPM(const char *filename, uchar *data, int compCount, bool flipped) const
+	bool SavePPM(const char* filename, uchar* data, int compCount, bool flipped) const
 	{
-		FILE *fp = fopen(filename,"wb");
-		if ( !fp ) return false;
-		fprintf(fp,"P6\n%d %d\n255\n", width, height);
-		switch( compCount ) {
+		FILE* fp = fopen(filename, "wb");
+		if (!fp)
+			return false;
+		fprintf(fp, "P6\n%d %d\n255\n", width, height);
+		switch (compCount)
+		{
 		case 1:
-			if ( flipped ) {
-				for ( int y=height-1; y>=0; y-- ) {
-					int i = y*width;
-					for ( int x=0; x<width; x++, i++ ) {
-						uchar d[3] = { data[i], data[i], data[i] };
-						fwrite(d,3,1,fp);
+			if (flipped)
+			{
+				for (int y = height - 1; y >= 0; y--)
+				{
+					int i = y * width;
+					for (int x = 0; x < width; x++ , i++)
+					{
+						uchar d[3] = {data[i], data[i], data[i]};
+						fwrite(d, 3, 1, fp);
 					}
 				}
-			} else {
-				for ( int i=0; i<width*height; i++ ) {
-					uchar d[3] = { data[i], data[i], data[i] };
-					fwrite(d,3,1,fp);
+			}
+			else
+			{
+				for (int i = 0; i < width * height; i++)
+				{
+					uchar d[3] = {data[i], data[i], data[i]};
+					fwrite(d, 3, 1, fp);
 				}
 			}
 			break;
 		case 3:
-			if ( flipped ) {
-				for ( int y=height-1; y>=0; y-- ) {
-					fwrite(&data[y*width*3],3,width,fp);
+			if (flipped)
+			{
+				for (int y = height - 1; y >= 0; y--)
+				{
+					fwrite(&data[y * width * 3], 3, width, fp);
 				}
-			} else {
-				fwrite(data,3,width*height,fp);
+			}
+			else
+			{
+				fwrite(data, 3, width * height, fp);
 			}
 			break;
 		}

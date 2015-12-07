@@ -21,9 +21,12 @@
 class Sphere : public Object
 {
 public:
-	virtual bool IntersectRay( const Ray &ray, HitInfo &hInfo, int hitSide=HIT_FRONT ) const;
-	virtual Box GetBoundBox() const { return Box(-1,-1,-1,1,1,1); }
-	virtual void ViewportDisplay(const Material *mtl) const;
+	virtual bool IntersectRay( const Ray &ray, HitInfo &hInfo, int hitSide=HIT_FRONT ) const override;
+	virtual Box GetBoundBox() const override 
+	{
+		return Box(-1,-1,-1,1,1,1); 
+	}
+	virtual void ViewportDisplay(const Material *mtl) const override;
 };
 
 extern Sphere theSphere;
@@ -33,9 +36,12 @@ extern Sphere theSphere;
 class Plane : public Object
 {
 public:
-	virtual bool IntersectRay( const Ray &ray, HitInfo &hInfo, int hitSide=HIT_FRONT ) const;
-	virtual Box GetBoundBox() const { return Box(-1,-1,0,1,1,0); }
-	virtual void ViewportDisplay(const Material *mtl) const;
+	virtual bool IntersectRay( const Ray &ray, HitInfo &hInfo, int hitSide=HIT_FRONT ) const override;
+	virtual Box GetBoundBox() const override
+	{
+		return Box(-1,-1,0,1,1,0); 
+	}
+	virtual void ViewportDisplay(const Material *mtl) const override;
 };
 
 extern Plane thePlane;
@@ -45,17 +51,23 @@ extern Plane thePlane;
 class TriObj : public Object, public cyTriMesh
 {
 public:
-	virtual bool IntersectRay( const Ray &ray, HitInfo &hInfo, int hitSide=HIT_FRONT ) const;
-	virtual Box GetBoundBox() const { return Box(GetBoundMin(),GetBoundMax()); }
-	virtual void ViewportDisplay(const Material *mtl) const;
+	virtual bool IntersectRay( const Ray &ray, HitInfo &hInfo, int hitSide=HIT_FRONT ) const override;
+	virtual Box GetBoundBox() const override
+	{
+		return Box(GetBoundMin(),GetBoundMax()); 
+	}
+
+	virtual void ViewportDisplay(const Material *mtl) const override;
 
 	bool Load(const char *filename, bool loadMtl)
 	{
 		bvh.Clear();
-		if ( ! LoadFromFileObj( filename, loadMtl ) ) return false;
-		if ( ! HasNormals() ) ComputeNormals();
+		if (! LoadFromFileObj(filename, loadMtl))
+			return false;
+		if (! HasNormals())
+			ComputeNormals();
 		ComputeBoundingBox();
-		bvh.SetMesh(this,4);
+		bvh.SetMesh(this, 4);
 		return true;
 	}
 

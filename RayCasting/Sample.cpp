@@ -22,7 +22,7 @@ void SampleList::addColor(int i, Color i_color)
 	summedShade += i_color;
 }
 
-Sample& SampleList::getSample(int i_index)
+Sample SampleList::getSample(int i_index)
 {
 	if(i_index< mSamples.size())
 		return mSamples[i_index];

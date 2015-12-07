@@ -37,7 +37,7 @@ public:
 	int getMinSampleCount();
 	int getCurrentSampleListSize();
 	void addColor(int, Color);
-	Sample& getSample(int);	
+	Sample getSample(int);	
 	bool isEmpty();
 	Color getVariance();
 	void clearAll();

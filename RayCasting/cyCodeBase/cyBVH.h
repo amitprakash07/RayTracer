@@ -36,32 +36,56 @@ class cyBVH
 {
 public:
 
-	cyBVH() : nodes(NULL), elements(NULL) {}
-	virtual ~cyBVH() { Clear(); }
+	cyBVH() : nodes(NULL), elements(NULL)
+	{
+	}
+
+	virtual ~cyBVH()
+	{
+		Clear();
+	}
 
 	/////////////////////////////////////////////////////////////////////////////////
 	//@ Node Access Methods
 	/////////////////////////////////////////////////////////////////////////////////
 
 	/// Returns the index of the root node.
-	unsigned int GetRootNodeID() const { return 1; }
+	unsigned int GetRootNodeID() const
+	{
+		return 1;
+	}
 
 	/// Returns the bounding box of the node as 6 float values.
 	/// The first 3 values are the minimum x, y, and z coordinates and
 	/// the last 3 values are the maximum x, y, and z coordinates of the box.
-	const float* GetNodeBounds(unsigned int nodeID) const { return nodes[nodeID].GetBounds(); }
+	const float* GetNodeBounds(unsigned int nodeID) const
+	{
+		return nodes[nodeID].GetBounds();
+	}
 
 	/// Returns true if the node is a leaf node.
-	bool IsLeafNode(unsigned int nodeID) const { return nodes[nodeID].IsLeafNode(); }
+	bool IsLeafNode(unsigned int nodeID) const
+	{
+		return nodes[nodeID].IsLeafNode();
+	}
 
 	/// Returns the index of the first child node (parent must be an internal node).
-	unsigned int GetFirstChildNode(unsigned int parentNodeID) const { return nodes[parentNodeID].ChildIndex(); }
+	unsigned int GetFirstChildNode(unsigned int parentNodeID) const
+	{
+		return nodes[parentNodeID].ChildIndex();
+	}
 
 	/// Returns the index of the second child node (parent must be an internal node).
-	unsigned int GetSecondChildNode(unsigned int parentNodeID) const { return nodes[parentNodeID].ChildIndex()+1; }
+	unsigned int GetSecondChildNode(unsigned int parentNodeID) const
+	{
+		return nodes[parentNodeID].ChildIndex() + 1;
+	}
 
 	/// Given the first child node index, returns the index of the second child node.
-	unsigned int GetSiblingNode(unsigned int firstChildNodeID) const { return firstChildNodeID+1; }
+	unsigned int GetSiblingNode(unsigned int firstChildNodeID) const
+	{
+		return firstChildNodeID + 1;
+	}
 
 	/// Returns the child nodes of the given node (parent must be an internal node).
 	void GetChildNodes(unsigned int parent, unsigned int &child1, unsigned int &child2) const
@@ -71,10 +95,16 @@ public:
 	}
 
 	/// Returns the number of elements inside the given node (must be a leaf node).
-	unsigned int GetNodeElementCount(unsigned int nodeID) const  { return nodes[nodeID].ElementCount(); }
+	unsigned int GetNodeElementCount(unsigned int nodeID) const
+	{
+		return nodes[nodeID].ElementCount();
+	}
 
 	/// Returns the list of element inside the given node (must be a leaf node).
-	const unsigned int* GetNodeElements(unsigned int nodeID) const { return &elements[nodes[nodeID].ElementOffset()]; }
+	const unsigned int* GetNodeElements(unsigned int nodeID) const
+	{
+		return &elements[nodes[nodeID].ElementOffset()];
+	}
 
 	/////////////////////////////////////////////////////////////////////////////////
 	//@ Clear and Build Methods
@@ -93,17 +123,23 @@ public:
 	void Build( unsigned int numElements, unsigned int maxElementsPerNode=CY_BVH_MAX_ELEMENT_COUNT )
 	{
 		Clear();
-		if ( numElements == 0 ) return;
-		if ( maxElementsPerNode > CY_BVH_MAX_ELEMENT_COUNT ) maxElementsPerNode = CY_BVH_MAX_ELEMENT_COUNT;
+		if ( numElements == 0 )
+			return;
+		if ( maxElementsPerNode > CY_BVH_MAX_ELEMENT_COUNT ) 
+			maxElementsPerNode = CY_BVH_MAX_ELEMENT_COUNT;
 		elements = new unsigned int[numElements];
-		for ( unsigned int i=0; i<numElements; i++ ) elements[i] = i;
+		for ( unsigned int i=0; i<numElements; i++ ) 
+			elements[i] = i;
+		
 		Box box;
 		box.Init();
-		for ( unsigned int i=0; i<numElements; i++ ) {
+		for ( unsigned int i=0; i<numElements; i++ ) 
+		{
 			Box b;
 			GetElementBounds(i,b.b);
 			box += b;
 		}
+
 		TempNode *tempRoot = new TempNode( numElements, 0, box );
 		SplitTempNode(tempRoot,maxElementsPerNode);
 		unsigned int numNodes = tempRoot->GetNumNodes();
@@ -149,22 +185,71 @@ private:
 	struct Box
 	{
 		float b[6];
-		Box() { Init(); }
-		Box(const Box &box) { for(int i=0; i<6; i++) b[i]=box.b[i]; }
-		void Init() { b[0]=b[1]=b[2]=1e30f; b[3]=b[4]=b[5]=-1e30f; }
-		void operator += (const Box &box) { for(int i=0; i<3; i++) { if(b[i]>box.b[i])b[i]=box.b[i]; if(b[i+3]<box.b[i+3])b[i+3]=box.b[i+3]; } }
+
+		Box()
+		{
+			Init();
+		}
+
+		Box(const Box& box)
+		{
+			for (int i = 0; i < 6; i++)
+				b[i] = box.b[i];
+		}
+
+		void Init()
+		{
+			b[0] = b[1] = b[2] = 1e30f;
+			b[3] = b[4] = b[5] = -1e30f;
+		}
+
+		void operator +=(const Box& box)
+		{
+			for (int i = 0; i < 3; i++)
+			{
+				if (b[i] > box.b[i])
+					b[i] = box.b[i];
+				if (b[i + 3] < box.b[i + 3])
+					b[i + 3] = box.b[i + 3];
+			}
+		}
 	};
 
 	class Node
 	{
 	public:
-		void SetLeafNode( const Box &bound, unsigned int elemCount, unsigned int elemOffset ) { box=bound; data=(elemOffset&CY_BVH_ELEMENT_OFFSET_MASK)|((elemCount-1)<<CY_BVH_ELEMENT_OFFSET_BITS)|CY_BVH_LEAF_BIT_MASK; }
-		void SetInternalNode( const Box &bound, unsigned int chilIndex ) { box=bound; data=(chilIndex&CY_BVH_CHILD_INDEX_MASK); }
-		unsigned int	ChildIndex()	const { return (data&CY_BVH_CHILD_INDEX_MASK); }									///< returns the index to the first child (must be internal node)
-		unsigned int	ElementOffset()	const { return (data&CY_BVH_ELEMENT_OFFSET_MASK); }									///< returns the offset to the first element (must be leaf node)
-		unsigned int	ElementCount()	const { return ((data>>CY_BVH_ELEMENT_OFFSET_BITS)&CY_BVH_ELEMENT_COUNT_MASK)+1; }	///< returns the number of elements in this node (must be leaf node)
-		bool			IsLeafNode()	const { return (data&CY_BVH_LEAF_BIT_MASK)>0; }										///< returns true if this is a leaf node
-		const float*	GetBounds()		const { return box.b; }																///< returns the bounding box of the node
+		void SetLeafNode(const Box& bound, unsigned int elemCount, unsigned int elemOffset)
+		{
+			box = bound;
+			data = (elemOffset & CY_BVH_ELEMENT_OFFSET_MASK) | ((elemCount - 1) << CY_BVH_ELEMENT_OFFSET_BITS) | CY_BVH_LEAF_BIT_MASK;
+		}
+
+		void SetInternalNode(const Box& bound, unsigned int chilIndex)
+		{
+			box = bound;
+			data = (chilIndex & CY_BVH_CHILD_INDEX_MASK);
+		}
+
+		unsigned int ChildIndex() const
+		{
+			return (data & CY_BVH_CHILD_INDEX_MASK);
+		} ///< returns the index to the first child (must be internal node)
+		unsigned int ElementOffset() const
+		{
+			return (data & CY_BVH_ELEMENT_OFFSET_MASK);
+		} ///< returns the offset to the first element (must be leaf node)
+		unsigned int ElementCount() const
+		{
+			return ((data >> CY_BVH_ELEMENT_OFFSET_BITS) & CY_BVH_ELEMENT_COUNT_MASK) + 1;
+		} ///< returns the number of elements in this node (must be leaf node)
+		bool IsLeafNode() const
+		{
+			return (data & CY_BVH_LEAF_BIT_MASK) > 0;
+		} ///< returns true if this is a leaf node
+		const float* GetBounds() const
+		{
+			return box.b;
+		}																///< returns the bounding box of the node
 	private:
 		Box				box;	///< bounding box of the node
 		unsigned int	data;	///< node data bits that keep the leaf node flag and the child node index or element count and element offset.
@@ -181,8 +266,17 @@ private:
 	class TempNode
 	{
 	public:
-		TempNode( unsigned int count, unsigned int offset, const Box &boundBox) : child1(NULL), child2(NULL), elementCount(count), elementOffset(offset), box(boundBox) {}
-		~TempNode() { if ( child1 ) delete child1; if ( child2 ) delete child2; }
+		TempNode(unsigned int count, unsigned int offset, const Box& boundBox) : child1(NULL), child2(NULL), elementCount(count), elementOffset(offset), box(boundBox)
+		{
+		}
+
+		~TempNode()
+		{
+			if (child1)
+				delete child1;
+			if (child2)
+				delete child2;
+		}
 
 		void Split( unsigned int child1ElementCount, const Box &child1Box, const Box &child2Box )
 		{
@@ -196,12 +290,36 @@ private:
 			if ( child2 ) n += child2->GetNumNodes();
 			return n;
 		}
-		bool IsLeafNode() const { return child1==NULL; }
-		unsigned int ElementCount() const { return elementCount; }
-		unsigned int ElementOffset() const { return elementOffset; }
-		TempNode* GetChild1() { return child1; }
-		TempNode* GetChild2() { return child2; }
-		const Box& GetBounds() const { return box; }
+
+		bool IsLeafNode() const
+		{
+			return child1 == NULL;
+		}
+
+		unsigned int ElementCount() const
+		{
+			return elementCount;
+		}
+
+		unsigned int ElementOffset() const
+		{
+			return elementOffset;
+		}
+
+		TempNode* GetChild1()
+		{
+			return child1;
+		}
+
+		TempNode* GetChild2()
+		{
+			return child2;
+		}
+
+		const Box& GetBounds() const
+		{
+			return box;
+		}
 	private:
 		TempNode		*child1, *child2;
 		Box				box;
@@ -274,15 +392,20 @@ private:
 		if ( d[sd[1]] < d[sd[2]] ) { int t=sd[1]; sd[1]=sd[2]; sd[2]=t; }
 
 		unsigned int child1ElemCount = 0;
-		for ( int s=0; s<3; s++ ) {
+		for ( int s=0; s<3; s++ ) 
+		{
 			unsigned int splitDim = sd[s];
 			float splitPos = 0.5f * ( box[splitDim] + box[splitDim+3] );
 			unsigned int i=0, j=elementCount;
-			while ( i<j ) {
+			while ( i<j )
+			{
 				float center = GetElementCenter( nodeElements[i], splitDim );
-				if ( center <= splitPos ) {
+				if ( center <= splitPos )
+				{
 					i++;
-				} else {
+				} 
+				else 
+				{
 					j--;
 					unsigned int t = nodeElements[i];
 					nodeElements[i] = nodeElements[j];
@@ -310,8 +433,14 @@ private:
 class cyBVHTriMesh : public cyBVH
 {
 public:
-	cyBVHTriMesh() : mesh(NULL) {}
-	cyBVHTriMesh(const cyTriMesh *m) { SetMesh(m); }
+	cyBVHTriMesh() : mesh(NULL)
+	{
+	}
+
+	cyBVHTriMesh(const cyTriMesh* m)
+	{
+		SetMesh(m);
+	}
 
 	/// Sets the mesh pointer and builds the BVH structure.
 	void SetMesh(const cyTriMesh *m, unsigned int maxElementsPerNode=CY_BVH_MAX_ELEMENT_COUNT)
@@ -325,14 +454,20 @@ protected:
 	/// Sets box as the i^th element's bounding box.
 	virtual void GetElementBounds(unsigned int i, float box[6]) const override
 	{
-		const cyTriMesh::cyTriFace &f = mesh->F(i);
-		cyPoint3f p = mesh->V( f.v[0] );
-		box[0]=box[3]=p.x; box[1]=box[4]=p.y; box[2]=box[5]=p.z;
-		for ( int j=1; j<3; j++ ) { // for each triangle
-			cyPoint3f p = mesh->V( f.v[j] );
-			for ( int k=0; k<3; k++ ) { // for each dimension
-				if ( box[k] > p[k] ) box[k] = p[k];
-				if ( box[k+3] < p[k] ) box[k+3] = p[k];
+		const cyTriMesh::cyTriFace& f = mesh->F(i);
+		cyPoint3f p = mesh->V(f.v[0]);
+		box[0] = box[3] = p.x;
+		box[1] = box[4] = p.y;
+		box[2] = box[5] = p.z;
+		for (int j = 1; j < 3; j++)
+		{ // for each triangle
+			cyPoint3f p = mesh->V(f.v[j]);
+			for (int k = 0; k < 3; k++)
+			{ // for each dimension
+				if (box[k] > p[k])
+					box[k] = p[k];
+				if (box[k + 3] < p[k])
+					box[k + 3] = p[k];
 			}
 		}
 	}
@@ -340,8 +475,8 @@ protected:
 	/// Returns the center of the i^th element in the given dimension.
 	virtual float GetElementCenter(unsigned int i, int dim) const override
 	{
-		const cyTriMesh::cyTriFace &f = mesh->F(i);
-		return ( mesh->V(f.v[0])[dim] + mesh->V(f.v[1])[dim] + mesh->V(f.v[2])[dim] ) / 3.0f;
+		const cyTriMesh::cyTriFace& f = mesh->F(i);
+		return (mesh->V(f.v[0])[dim] + mesh->V(f.v[1])[dim] + mesh->V(f.v[2])[dim]) / 3.0f;
 	}
 
 private:
