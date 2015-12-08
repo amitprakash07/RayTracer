@@ -104,7 +104,7 @@ Ray calculatePixelCoords(int pixelPositionAlongWidth,
 
 	if (camera.dof > 0.0f)
 	{
-		CircleSampler circleRandomSampler = CircleSampler(10, 10, camera.dof, camera.pos, camera.pos);
+		CircleSampler circleRandomSampler = CircleSampler(2, 2, camera.dof, camera.pos, camera.pos);
 		circleRandomSampler.generateSamples();
 		int sampleCount = circleRandomSampler.getCurrentSampleCount();
 		cameraSample = circleRandomSampler.getSample(static_cast<int>(getRandomNumber(0,sampleCount)));

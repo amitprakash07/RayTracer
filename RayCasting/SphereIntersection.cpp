@@ -20,17 +20,41 @@ bool Sphere::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 			float t1 = ((-b) + sqrt(d)) / (2.0f * a);
 			float t2 = ((-b) - sqrt(d)) / (2.0f * a);
 
-			if (t2 < BIAS && t1 < BIAS)
+			/*if (t2 < BIAS && t1 < BIAS)
 				isHit = false;
 
 			if (t2 < BIAS && t1 > BIAS)
 				hInfo.front = false;
 
 			if (t2 < BIAS && t1 > BIAS)
-				hInfo.front = false;
+				hInfo.front = false;*/
+
+			if (t1 < BIAS || t2 < BIAS)
+				isHit = false;
+			else
+			{
+				float t;
+				if (t1<t2)
+					t = t1;
+				else
+					t = t2;
+				if (t<hInfo.z)
+				{
+					isHit = true;
+					hInfo.z = t2;
+					hInfo.p = ray.p + hInfo.z* ray.dir;
+					hInfo.N = (hInfo.p - Point3(0.0f, 0.0f, 0.0f)).GetNormalized();
+					hInfo.front = true;
+
+					float theta = acos(hInfo.p.z);
+					float phi = asin(hInfo.p.x / sin(theta));
+					hInfo.uvw.x = static_cast<float>(phi / (2 * M_PI));
+					hInfo.uvw.y = static_cast<float>(1 - (theta / M_PI));
+				}
+			}
 
 
-			if ((t2 > BIAS) && (t2 < hInfo.z))
+			/*if ((t2 > BIAS) && (t2 < hInfo.z))
 			{
 				isHit = true;
 				hInfo.z = t2;
@@ -44,7 +68,7 @@ bool Sphere::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 				hInfo.uvw.y = static_cast<float>(1 - (theta / M_PI));
 			}
 
-			if ((t1 > BIAS) && (t1 < hInfo.z))
+			if ((t1 > BIAS) && (t1 < t2))
 			{
 				isHit = true;
 				hInfo.z = t1;
@@ -56,7 +80,7 @@ bool Sphere::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 				float phi = asin(hInfo.p.x / sin(theta));
 				hInfo.uvw.x = static_cast<float>(phi / (2 * M_PI));
 				hInfo.uvw.y = static_cast<float>(1 - (theta / M_PI));
-			}
+			}*/
 
 		}
 		else

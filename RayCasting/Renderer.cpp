@@ -13,7 +13,7 @@
 #define GI_SAMPLE 10
 #define GI_BOUNCE_COUNT 1
 #include <iostream>
-#define THREADCOUNT 12
+#define THREADCOUNT 10
 
 Node rootNode;
 Camera camera;
