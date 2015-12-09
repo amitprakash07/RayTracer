@@ -112,7 +112,6 @@ void Sampler::addSampleToList(Sample i_sample)
 void Sampler::clearSamples()
 {
 	mSampleList.clearAll();
-	currentSampleCount = 0;
 }
 
 double Sampler::getMaxThreshold()

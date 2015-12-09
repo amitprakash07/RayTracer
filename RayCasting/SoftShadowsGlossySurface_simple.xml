@@ -7,11 +7,11 @@
     <environment value="0.7" texture="clouds.ppm"/>
 
     <!-- Objects -->
-	<object type="sphere" name="sphere4" material="red">
+	<object type="sphere" name="sphere4" material="glossy1">
       <scale value="6"/>
       <translate x="14" y="0" z="6"/>
     </object>
-    <object type="sphere" name="sphere5" material="red">
+    <object type="sphere" name="sphere5" material="glossy2">
       <scale value="2"/>
       <translate x="22" y="-30" z="2"/>
     </object>

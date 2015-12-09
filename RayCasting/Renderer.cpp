@@ -4,6 +4,7 @@
 #include "MonteCarloGI.h"
 #include "Time/FrameTime.h"
 #include <tchar.h>
+#include <assert.h>
 
 
 #define MIN_SAMPLE_COUNT 8
@@ -13,7 +14,7 @@
 #define GI_SAMPLE 10
 #define GI_BOUNCE_COUNT 1
 #include <iostream>
-#define THREADCOUNT 10
+#define THREADCOUNT 8
 
 Node rootNode;
 Camera camera;
@@ -189,13 +190,17 @@ void Renderer::calculatePixelColor(Node &i_rootNode, LightList &i_lightList, int
 	int pixel = offsetAlongHeight * imageWidth + offsetAlongWidth;
 
 	TCHAR* mutexName = __T("WritingMutex");
-	HANDLE mutexHandle = OpenMutex(MUTEX_ALL_ACCESS, FALSE, mutexName);
-	WaitForSingleObject(mutexHandle, INFINITE);
+	static HANDLE mutexHandle = NULL;
+	if( mutexHandle == NULL )
+		mutexHandle = OpenMutex(MUTEX_ALL_ACCESS, FALSE, mutexName);
+	DWORD dSuccess = WaitForSingleObject(mutexHandle, INFINITE);
+	assert(dSuccess == WAIT_OBJECT_0);
 	renderingImage[pixel] = tempColor; 
 	operationCountImage[pixel] = Color(1.0f,0.0f,0.0f) * static_cast<float>(hitInfo.operationCount/BIGFLOAT);
 	zBufferImage[pixel] = depth;
 	sampleCountImage[pixel] = sampleCount;
-	ReleaseMutex(mutexHandle);
+	bool bSuccess = ReleaseMutex(mutexHandle);
+	assert(bSuccess == true);
 	sampler.resetSampler();
 	//delete mGI;
 	//delete sampler;	
