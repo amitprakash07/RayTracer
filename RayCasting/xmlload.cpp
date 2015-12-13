@@ -39,6 +39,8 @@ extern TextureList textureList;
 
 //-------------------------------------------------------------------------------
 
+//typedef tinyxml2::XMLElement TiXmlElement ;
+
 void LoadScene(TiXmlElement *element);
 void LoadNode(Node *node, TiXmlElement *element, int level=0);
 void LoadTransform( Transformation *trans, TiXmlElement *element, int level );

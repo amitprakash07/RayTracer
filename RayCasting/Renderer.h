@@ -54,7 +54,7 @@ public:
 	static void startRendering(size_t);
 private:
 	static DWORD WINAPI renderPixel(LPVOID threadData);
-	static void calculatePixelColor(Node&, LightList&, int, int);
+	static void calculatePixelColor(Node&, LightList&, int, int,int);
 	static size_t threadCount;
 	static ThreadHandle mThreadHandle;
 	//static Pixel * mPixelOffset;

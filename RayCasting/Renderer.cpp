@@ -8,13 +8,13 @@
 
 
 #define MIN_SAMPLE_COUNT 8
-#define MAX_SAMPLE_COUNT 16
+#define MAX_SAMPLE_COUNT 256
 #define MIN_VARIANCE 0.0001
 #define MAX_VARIANCE 0.001
 #define GI_SAMPLE 10
 #define GI_BOUNCE_COUNT 1
 #include <iostream>
-#define THREADCOUNT 8
+#define THREADCOUNT 10
 
 Node rootNode;
 Camera camera;
@@ -68,6 +68,8 @@ void Renderer::startRendering(size_t i_threadCount)
 	mThreadHandle = ThreadHandle(threadCount);
 	imageWidth = renderImage.GetWidth();
 	imageHeight = renderImage.GetHeight();
+	//imageWidth = 32;
+	//imageHeight = 32;
 	noOfRowsToRenderPerThread = imageHeight / threadCount;
 	renderingImage = renderImage.GetPixels();
 	zBufferImage = renderImage.GetZBuffer();
@@ -83,9 +85,7 @@ void Renderer::startRendering(size_t i_threadCount)
 			calculatePixelColor(rootNode,lights,j, i);
 		}
 	}*/
-
 	
-
 	int *threadVal = new int[threadCount];
 	for (size_t i = 0; i < threadCount; i++)
 	{
@@ -136,30 +136,44 @@ DWORD Renderer::renderPixel(LPVOID threadData)
 	 *
 	*****
 	*/
+	int theradIndex = *reinterpret_cast<int*>(threadData);
 	int heightImageIndex = *reinterpret_cast<int*>(threadData) * noOfRowsToRenderPerThread;
+	
 	/*Node threadScopeRootNodeCopy = rootNode;
 	LightList threadScopeLightLIst = lights;*/
+
 	for (int j = 0; j < noOfRowsToRenderPerThread; j = j + 2)
 	{
 		for (int widthOffset = 0; widthOffset < imageWidth; widthOffset = widthOffset + 2)
 		{
-			calculatePixelColor(/*threadScopeRootNodeCopy*/ rootNode, /*threadScopeLightLIst*/lights, widthOffset, heightImageIndex);
-			calculatePixelColor(/*threadScopeRootNodeCopy*/rootNode, /*threadScopeLightLIst*/ lights, widthOffset + 1, heightImageIndex);
-			calculatePixelColor(/*threadScopeRootNodeCopy*/rootNode, /*threadScopeLightLIst*/lights, widthOffset, heightImageIndex + 1);
-			calculatePixelColor(/*threadScopeRootNodeCopy*/rootNode, /*threadScopeLightLIst*/lights, widthOffset + 1, heightImageIndex + 1);
+			calculatePixelColor(rootNode, lights, widthOffset, heightImageIndex, theradIndex);
+			//std::cout << "\nThread No -" << theradDataTemp << "width Offset = " << widthOffset << "height offset = " << heightImageIndex << " Calculated pixel value = " << heightImageIndex * imageWidth + widthOffset << std::endl;
+			calculatePixelColor(rootNode, lights, widthOffset + 1, heightImageIndex, theradIndex);
+			//std::cout << "\nThread No -" << theradDataTemp << "width Offset = " << widthOffset << "height offset = " << heightImageIndex << " Calculated pixel value = " << heightImageIndex * imageWidth + widthOffset << std::endl;
+			calculatePixelColor(rootNode, lights, widthOffset, heightImageIndex + 1, theradIndex);
+			//std::cout << "\nThread No -" << theradDataTemp << "width Offset = " << widthOffset << "height offset = " << heightImageIndex << " Calculated pixel value = " << heightImageIndex * imageWidth + widthOffset << std::endl;
+			calculatePixelColor(rootNode, lights, widthOffset + 1, heightImageIndex + 1, theradIndex);
+			//std::cout << "\nThread No -" << theradDataTemp << "width Offset = " << widthOffset << "height offset = " << heightImageIndex << " Calculated pixel value = " << heightImageIndex * imageWidth + widthOffset << std::endl;
 		}
 		heightImageIndex += 2;
 	}
+	
 	return 0;
 }
 
 
-void Renderer::calculatePixelColor(Node &i_rootNode, LightList &i_lightList, int offsetAlongWidth, int offsetAlongHeight)
+void Renderer::calculatePixelColor(Node &i_rootNode, LightList &i_lightList, int offsetAlongWidth, int offsetAlongHeight, int theradIndex)
 {
 	HitInfo hitInfo;
 	Color noHitPixelColor = { 0,0,0 };
 	Color finalColor = { 0,0,0 };
 	RandomSampler sampler = RandomSampler(MIN_SAMPLE_COUNT, MAX_SAMPLE_COUNT, MIN_VARIANCE, MAX_VARIANCE);
+
+	int tempoffsetAlongWidth = offsetAlongWidth;
+	int tempoffsetAlongHeight = offsetAlongHeight;
+	int temptheradIndex = theradIndex;
+	int pixel = offsetAlongHeight * imageWidth + offsetAlongWidth;
+	assert(pixel < (imageHeight* imageWidth));
 
 	/*MonteCarloGI *mGI = new MonteCarloGI();*/
 	while (sampler.needMoreSamples())
@@ -187,8 +201,8 @@ void Renderer::calculatePixelColor(Node &i_rootNode, LightList &i_lightList, int
 	Color tempColor = sampler.getAveragedSampleListColor();
 	float depth = sampler.getAveragedDepth();
 	int sampleCount = sampler.getSampleBucketSize();
-	int pixel = offsetAlongHeight * imageWidth + offsetAlongWidth;
-
+	pixel = offsetAlongHeight * imageWidth + offsetAlongWidth;
+	
 	TCHAR* mutexName = __T("WritingMutex");
 	static HANDLE mutexHandle = NULL;
 	if( mutexHandle == NULL )

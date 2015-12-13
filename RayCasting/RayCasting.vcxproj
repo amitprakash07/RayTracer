@@ -217,7 +217,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)RayCasting\freeglut\Lib;$(SolutionDir)RayCasting\tinyxml\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freeglut.lib;tinyxml.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglut.lib;tinyxml2_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
@@ -304,6 +304,7 @@
     <ClInclude Include="Threading\WaitableObject.h" />
     <ClInclude Include="Time\FrameTime.h" />
     <ClInclude Include="Time\TimeHelper.h" />
+    <ClInclude Include="tinyXML-tinyXML2_wrapper.h" />
     <ClInclude Include="tinyxml\tinystr.h" />
     <ClInclude Include="tinyxml\tinyxml.h" />
     <ClInclude Include="utils.h" />

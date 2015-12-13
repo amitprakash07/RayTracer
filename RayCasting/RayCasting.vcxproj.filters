@@ -122,9 +122,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tinyxml\tinyxml.h">
-      <Filter>TinyXML</Filter>
-    </ClInclude>
     <ClInclude Include="tinyxml\tinystr.h">
       <Filter>TinyXML</Filter>
     </ClInclude>
@@ -229,6 +226,12 @@
     </ClInclude>
     <ClInclude Include="Threading\WaitableObject.h">
       <Filter>Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml\tinyxml.h">
+      <Filter>TinyXML</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyXML-tinyXML2_wrapper.h">
+      <Filter>TinyXML</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

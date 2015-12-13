@@ -6,8 +6,16 @@
     </background>
     <environment value="0.7" texture="clouds.ppm"/>
 
-   <!-- Objects -->
-   <object type="sphere" name="sphere1" material="smooth">
+    <!-- Objects -->
+    <object type="plane" name="groundPlane" material="ground">
+      <scale value="1000"/>
+    </object>
+    <object type="plane" name="wall" material="bricks">
+      <scale value="100"/>
+      <rotate angle="90" x="1"/>
+      <translate y="10"/>
+    </object>
+    <object type="sphere" name="sphere1" material="smooth">
       <scale value="6"/>
       <translate x="-28" y="0" z="6"/>
     </object>
@@ -23,11 +31,15 @@
       <scale value="6"/>
       <translate x="14" y="0" z="6"/>
     </object>
+    <object type="obj" name="teapot.obj" material="red">
+      <scale value="0.5"/>
+      <rotate angle="-50" z="1"/>
+      <translate x="13" y="-21" z="0"/>
+    </object>
     <object type="sphere" name="sphere5" material="glossy4">
       <scale value="2"/>
       <translate x="22" y="-30" z="2"/>
     </object>
-    
 
     <!-- Materials -->
     <material type="blinn" name="ground">

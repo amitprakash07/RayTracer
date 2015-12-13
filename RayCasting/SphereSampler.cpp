@@ -56,7 +56,7 @@ void SphereSampler::generateSamples(float, float)
 	clearSamples();
 	increaseSampleCount();
 	Sample tempSample;
-	bool rejectionSampling = false;
+	bool rejectionSampling = true;
 	bool sampleFound = false;
 	float x = 0.0f;
 	float y = 0.0f;
