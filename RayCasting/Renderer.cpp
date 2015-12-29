@@ -7,13 +7,13 @@
 #include <assert.h>
 
 
-#define MIN_SAMPLE_COUNT 64
+#define MIN_SAMPLE_COUNT 256
 #define MAX_SAMPLE_COUNT 256
 #define MIN_VARIANCE 0.0001
 #define MAX_VARIANCE 0.001
 #define GI_SAMPLE 10
-#define GI_BOUNCE_COUNT 2
-#define REFLECTION_BOUNCE_COUNT 2
+#define GI_BOUNCE_COUNT 5
+#define REFLECTION_BOUNCE_COUNT 3
 #include <iostream>
 #define THREADCOUNT 6
 
@@ -174,9 +174,9 @@ void Renderer::calculatePixelColor(Node &i_rootNode, LightList &i_lightList, int
 			{
 				finalColor = hitInfo.node->GetMaterial()->Shade(sampleRay, hitInfo, 
 					i_lightList, REFLECTION_BOUNCE_COUNT, GI_BOUNCE_COUNT);
-				finalColor.r = pow(finalColor.r, 1/2.2);
+				/*finalColor.r = pow(finalColor.r, 1/2.2);
 				finalColor.g = pow(finalColor.g, 1/2.2);
-				finalColor.b = pow(finalColor.b, 1/2.2);
+				finalColor.b = pow(finalColor.b, 1/2.2);*/
 				sampler.setSampleColor(k, finalColor);
 				sampler.setIsSampleHit(k, true);				
 			}
@@ -189,6 +189,9 @@ void Renderer::calculatePixelColor(Node &i_rootNode, LightList &i_lightList, int
 	}
 
 	Color tempColor = sampler.getAveragedSampleListColor();
+	tempColor.r = pow(tempColor.r, 1 / 2.2);
+	tempColor.g = pow(tempColor.g, 1 / 2.2);
+	tempColor.b = pow(tempColor.b, 1 / 2.2);
 	float depth = sampler.getAveragedDepth();
 	int sampleCount = sampler.getSampleBucketSize();
 	int pixel = offsetAlongHeight * imageWidth + offsetAlongWidth;

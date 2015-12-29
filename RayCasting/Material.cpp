@@ -5,6 +5,9 @@
 #include "HemiSphereSampler.h"
 #include "utils.h"
 
+#define MONTECARLO_GI 1
+#define PATH_TRACING 0
+#define GI_ALGO PATH_TRACING
 
 extern Node rootNode;
 extern TexturedColor environment;
@@ -29,8 +32,6 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 
 	for (int i = 0; i < lights.size(); i++)
 	{
-		//Color lightColor = lights[i]->Illuminate(hInfo.p, hInfo.N);
-
 		if (lights[i]->IsAmbient())
 		{
 			ambientComp += ambientComponent(lights[i], hInfo, diffuse.Sample(hInfo.uvw));
@@ -99,17 +100,55 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 		}
 	}
 	/****************************************************************************************************/
-		
-	if (kd != noColor && gi_bounceCount > 0)
+	if(GI_ALGO)
 	{
-		HemiSphereSampler giHemiSampler = HemiSphereSampler(__gi_sampleCount, __gi_sampleCount, 1);
-		giHemiSampler.generateSamples();
-		Point3 randomDirectionAtHitPoint = Point3(0.0f, 0.0f, 0.0f);
-		HitInfo diffuseReflectionHitInfo;
-		Ray diffuseReflectionRay;
-		for (int i = 0; i < giHemiSampler.getCurrentSampleCount(); ++i)
+		if (kd != noColor && gi_bounceCount > 0)
 		{
-			randomDirectionAtHitPoint = giHemiSampler.getSample(i).getOffset();
+			HemiSphereSampler giHemiSampler = HemiSphereSampler(__gi_sampleCount, __gi_sampleCount, 1);
+			giHemiSampler.generateSamples();
+			Point3 randomDirectionAtHitPoint = Point3(0.0f, 0.0f, 0.0f);
+			HitInfo diffuseReflectionHitInfo;
+			Ray diffuseReflectionRay;
+			for (int i = 0; i < giHemiSampler.getCurrentSampleCount(); ++i)
+			{
+				randomDirectionAtHitPoint = giHemiSampler.getSample(getRandomNumber(0, giHemiSampler.getCurrentSampleCount())).getOffset();
+				diffuseReflectionRay.p = hInfo.p;
+				Point3 u = Point3(0.0f, 0.0f, 0.0f);
+				Point3 v = Point3(0.0f, 0.0f, 0.0f);
+				Point3 w = Point3(0.0f, 0.0f, 0.0f);
+				w = hInfo.N;
+				getOrthoNormalBasisVector(w, u, v);
+				diffuseReflectionRay.dir = randomDirectionAtHitPoint.x * u +
+					randomDirectionAtHitPoint.y * v +
+					randomDirectionAtHitPoint.z *w;
+				diffuseReflectionHitInfo.Init();
+				if (TraceRay(&rootNode, diffuseReflectionRay, diffuseReflectionHitInfo, HIT_FRONT))
+				{
+					diffuseReflection = diffuseReflectionHitInfo.node->GetMaterial()->Shade(diffuseReflectionRay,
+						diffuseReflectionHitInfo, lights, 0, gi_bounceCount - 1);					
+				}
+				else
+				{
+					diffuseReflection = environment.SampleEnvironment(diffuseReflectionRay.dir);
+				}
+				giHemiSampler.setSampleColor(i, diffuseReflection);
+				giHemiSampler.setIsSampleHit(i, true);
+			}
+
+			diffuseReflection = giHemiSampler.getAveragedSampleListColor() * diffuseReflection * kd * M_PI;
+		}
+	}
+	else
+	{
+		if (kd != noColor && gi_bounceCount > 0)
+		{
+			HemiSphereSampler giHemiSampler = HemiSphereSampler(__gi_sampleCount, __gi_sampleCount, 1);
+			giHemiSampler.generateSamples();
+			Point3 randomDirectionAtHitPoint = Point3(0.0f, 0.0f, 0.0f);
+			HitInfo diffuseReflectionHitInfo;
+			Ray diffuseReflectionRay;
+			
+			randomDirectionAtHitPoint = giHemiSampler.getSample(getRandomNumber(0, giHemiSampler.getCurrentSampleCount())).getOffset();
 			diffuseReflectionRay.p = hInfo.p;
 			Point3 u = Point3(0.0f, 0.0f, 0.0f);
 			Point3 v = Point3(0.0f, 0.0f, 0.0f);
@@ -117,26 +156,21 @@ Color MtlBlinn::Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lig
 			w = hInfo.N;
 			getOrthoNormalBasisVector(w, u, v);
 			diffuseReflectionRay.dir = randomDirectionAtHitPoint.x * u +
-			randomDirectionAtHitPoint.y * v +
-			randomDirectionAtHitPoint.z *w ;
-			//--gi_bounceCount;
+				randomDirectionAtHitPoint.y * v +
+				randomDirectionAtHitPoint.z *w;
+			
 			diffuseReflectionHitInfo.Init();
 			if (TraceRay(&rootNode, diffuseReflectionRay, diffuseReflectionHitInfo, HIT_FRONT))
 			{
-				diffuseReflection =  diffuseReflectionHitInfo.node->GetMaterial()->Shade(diffuseReflectionRay,
-				diffuseReflectionHitInfo, lights, 0, gi_bounceCount-1);
-				/*Color24 diffuseNormalColor = normalColor(diffuseReflectionHitInfo);
-				diffuseReflection = Color(diffuseNormalColor.r, diffuseNormalColor.g, diffuseNormalColor.b);*/
+				diffuseReflection = diffuseReflectionHitInfo.node->GetMaterial()->Shade(diffuseReflectionRay,
+					diffuseReflectionHitInfo, lights, 0, gi_bounceCount - 1);				
 			}
 			else
 			{
-				diffuseReflection =  environment.SampleEnvironment(diffuseReflectionRay.dir);
+				diffuseReflection = environment.SampleEnvironment(diffuseReflectionRay.dir);
 			}
-			giHemiSampler.setSampleColor(i, diffuseReflection);
-			giHemiSampler.setIsSampleHit(i, true);
+			diffuseReflection = diffuseReflection * kd ;
 		}
-
-		diffuseReflection = giHemiSampler.getAveragedSampleListColor() * kd * M_PI ;		
 	}
 			
 	return (ambientComp + diffuseComp + specularComp+ reflectiveComp + refractiveComp + diffuseReflection);

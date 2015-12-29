@@ -27,8 +27,8 @@ bool TriObj::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsigned faceID) const
 {
 	bool ishit = false;
-	if (GetBoundBox().IntersectRay(ray, BIGFLOAT))
-	{
+	/*if (GetBoundBox().IntersectRay(ray, BIGFLOAT))
+	{*/
 		hInfo.operationCount++;
 		MeshIndices face = this->F(faceID);
 		Point3 vertexA = this->V(face.v[0]);
@@ -120,7 +120,7 @@ bool TriObj::IntersectTriangle(const Ray& ray, HitInfo& hInfo, int hitSide, unsi
 
 		if (t < TRIANGLEBIAS)
 			ishit = false;
-	}
+	//}
 	
 	return ishit;
 }
