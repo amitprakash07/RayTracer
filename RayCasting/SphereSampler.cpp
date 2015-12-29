@@ -61,6 +61,8 @@ void SphereSampler::generateSamples(float, float)
 	float x = 0.0f;
 	float y = 0.0f;
 	float z = 0.0f;
+	float r = 0.0f;
+	
 	for (int i = 0; i < getCurrentSampleCount(); i++)
 	{
 		if (rejectionSampling)
@@ -70,9 +72,12 @@ void SphereSampler::generateSamples(float, float)
 				x = 2.0f * getRandomNumber(0,1) - 1.0f;
 				y = 2.0f * getRandomNumber(0,1) - 1.0f;
 				z = 2.0f * getRandomNumber(0,1) - 1.0f;
-				if ((x*x + y*y + z*z) <= (radius *radius))
+				if ((x*x + y*y + z*z) <= 1)
 					break;
 			}
+			x *= radius;
+			y *= radius;
+			z *= radius;
 			/*while (!sampleFound)
 			{
 				x = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
@@ -93,15 +98,14 @@ void SphereSampler::generateSamples(float, float)
 		*/
 		else
 		{
-			/*float sampleRadius = cbrt(static_cast<float>(rand()) / static_cast<float>(RAND_MAX)) * radius;*/
 			float r1 = getRandomNumber(0, 1);
-			float r2 = 1 - r1;
-			float phi = 2 * M_PI * r1;
-			float theta = acos(1 - (2 * r2));
+			float r2 = getRandomNumber(0, 1);
+			/*float phi = 2 * M_PI * r1;
+			float theta = acos(1 - (2 * r2));*/
 			Point3 offset;
-			offset.x = 2 * radius * cos(2 * M_PI) * sqrt(r2*(1 - r2));
-			offset.y = 2 * radius*sin(2 * M_PI)* sqrt(r2*(1 - r2));
-			offset.z = radius*(1 - (2 * r2));
+			offset.x = 2 * radius * cos(2 * M_PI * r1) * sqrt(r2*(1 - r2));
+			offset.y = 2 * radius * sin(2 * M_PI * r1) * sqrt(r2*(1 - r2));
+			offset.z = radius * (1 - (2 * r2));
 			tempSample.setOffset(offset);
 		}
 		addSampleToList(tempSample);

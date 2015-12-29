@@ -30,7 +30,7 @@ Color PointLight::Illuminate(const Point3& p, const Point3& N) const
 		Point3 vectorU = Point3(0.0f, 0.0f, 0.0f);
 		Point3 vectorV = Point3(0.0f, 0.0f, 0.0f);
 		Point3 lightDir;
-		lightDir = Direction(p);
+		lightDir = -1 * Direction(p);
 		Ray sampleRay;
 		Point3 offset;
 		Point3 samplePosition;
@@ -48,7 +48,7 @@ Color PointLight::Illuminate(const Point3& p, const Point3& N) const
 		returnColor = randomCircleSampler.getAveragedSampleListColor();
 	}
 	else
-		returnColor = Shadow(Ray(p, Direction(p))) * intensity;
+		returnColor = Shadow(Ray(p,position-p),1) * intensity;
 
 	//delete randomCircleSampler;
 	return returnColor;

@@ -29,7 +29,7 @@ void getOrthoNormalBasisVector(Point3 i_up, Point3 &o_out_vector /*U*/, Point3& 
 	while (true)
 	{
 		randomVectorW = getRandomVector();
-		if (i_up.Dot(randomVectorW) < RANDOMCOSINEANGLE)
+		if ( fabs(i_up.Dot(randomVectorW)) < RANDOMCOSINEANGLE)
 		{
 			o_out_vector = i_up.Cross(randomVectorW);
 			o_vector_right = i_up.Cross(o_out_vector).GetNormalized();
@@ -71,7 +71,7 @@ Point3 getSphericalCoordinates(float i_radius, float i_theta, float i_phi)
 
 
 Ray calculatePixelCoords(int pixelPositionAlongWidth,
-	int pixelPositonAlongHeight, Point2 positionInsidePixel)
+	int pixelPositonAlongHeight, Point3 positionInsidePixel)
 {
 	Point3 cameraRight = (camera.dir ^ camera.up).GetNormalized();
 	double aspectRatio = static_cast<double>(camera.imgWidth) /

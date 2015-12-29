@@ -471,7 +471,7 @@ public:
 	// ray: incoming ray,
 	// hInfo: hit information for the point that is being shaded, lights: the light list,
 	// bounceCount: permitted number of additional bounces for reflection and refraction.
-	virtual Color Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lights, int bounceCount) const=0;
+	virtual Color Shade(const Ray &ray, const HitInfo &hInfo, const LightList &lights, int bounceCount, int gi_bounceCount=0) const=0;
 
 	virtual void SetViewportMaterial(int subMtlID=0) const {}	// used for OpenGL display
 };

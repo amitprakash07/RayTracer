@@ -23,12 +23,13 @@ void RandomSampler::generateSamples(float pixelIndexAlongWidth, float pixelIndex
 {
 	clearSamples();
 	increaseSampleCount();
-	Point2 tempOffset;
+	Point3 tempOffset;
 	Sample tempSample;
 	for (int i = 0; i < getCurrentSampleCount(); ++i)
 	{
 		tempOffset.x = 2 * getRandomNumber(0, 1) - 1;
 		tempOffset.y = 2 * getRandomNumber(0, 1) - 1;
+		tempOffset.z = 2 * getRandomNumber(0, 1) - 1;
 		tempSample.setRay(calculatePixelCoords(pixelIndexAlongWidth, pixelIndexAlongHeight, tempOffset));
 		tempSample.setColor(Color(0.0f));
 		addSampleToList(tempSample);

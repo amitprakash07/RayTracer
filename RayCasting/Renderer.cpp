@@ -7,14 +7,16 @@
 #include <assert.h>
 
 
-#define MIN_SAMPLE_COUNT 8
-#define MAX_SAMPLE_COUNT 16
+#define MIN_SAMPLE_COUNT 64
+#define MAX_SAMPLE_COUNT 256
 #define MIN_VARIANCE 0.0001
 #define MAX_VARIANCE 0.001
 #define GI_SAMPLE 10
-#define GI_BOUNCE_COUNT 1
+#define GI_BOUNCE_COUNT 2
+#define REFLECTION_BOUNCE_COUNT 2
 #include <iostream>
-#define THREADCOUNT 8
+#define THREADCOUNT 6
+
 
 Node rootNode;
 Camera camera;
@@ -27,7 +29,8 @@ ObjFileList objList;
 TexturedColor background;
 TexturedColor environment;
 TextureList textureList;
-
+int __gi_sampleCount = GI_SAMPLE;
+int __gi_bounceCount = GI_BOUNCE_COUNT;
 
 
 size_t Renderer::threadCount = 0;
@@ -137,16 +140,15 @@ DWORD Renderer::renderPixel(LPVOID threadData)
 	*****
 	*/
 	int heightImageIndex = *reinterpret_cast<int*>(threadData) * noOfRowsToRenderPerThread;
-	/*Node threadScopeRootNodeCopy = rootNode;
-	LightList threadScopeLightLIst = lights;*/
+	
 	for (int j = 0; j < noOfRowsToRenderPerThread; j = j + 2)
 	{
 		for (int widthOffset = 0; widthOffset < imageWidth; widthOffset = widthOffset + 2)
 		{
-			calculatePixelColor(/*threadScopeRootNodeCopy*/ rootNode, /*threadScopeLightLIst*/lights, widthOffset, heightImageIndex);
-			calculatePixelColor(/*threadScopeRootNodeCopy*/rootNode, /*threadScopeLightLIst*/ lights, widthOffset + 1, heightImageIndex);
-			calculatePixelColor(/*threadScopeRootNodeCopy*/rootNode, /*threadScopeLightLIst*/lights, widthOffset, heightImageIndex + 1);
-			calculatePixelColor(/*threadScopeRootNodeCopy*/rootNode, /*threadScopeLightLIst*/lights, widthOffset + 1, heightImageIndex + 1);
+			calculatePixelColor(rootNode, lights, widthOffset, heightImageIndex);
+			calculatePixelColor(rootNode, lights, widthOffset + 1, heightImageIndex);
+			calculatePixelColor(rootNode, lights, widthOffset, heightImageIndex + 1);
+			calculatePixelColor(rootNode, lights, widthOffset + 1, heightImageIndex + 1);
 		}
 		heightImageIndex += 2;
 	}
@@ -161,7 +163,6 @@ void Renderer::calculatePixelColor(Node &i_rootNode, LightList &i_lightList, int
 	Color finalColor = { 0,0,0 };
 	RandomSampler sampler = RandomSampler(MIN_SAMPLE_COUNT, MAX_SAMPLE_COUNT, MIN_VARIANCE, MAX_VARIANCE);
 
-	/*MonteCarloGI *mGI = new MonteCarloGI();*/
 	while (sampler.needMoreSamples())
 	{
 		sampler.generateSamples(offsetAlongWidth, offsetAlongHeight);
@@ -171,14 +172,17 @@ void Renderer::calculatePixelColor(Node &i_rootNode, LightList &i_lightList, int
 			Ray sampleRay = sampler.getSampleRay(k);
 			if (TraceRay(&i_rootNode, sampleRay, hitInfo))
 			{
-				finalColor = hitInfo.node->GetMaterial()->Shade(sampleRay, hitInfo, i_lightList, 7);
-				//finalColor += mGI->indirectIlluminate(hitInfo, lights, GI_BOUNCE_COUNT, GI_SAMPLE);
+				finalColor = hitInfo.node->GetMaterial()->Shade(sampleRay, hitInfo, 
+					i_lightList, REFLECTION_BOUNCE_COUNT, GI_BOUNCE_COUNT);
+				finalColor.r = pow(finalColor.r, 1/2.2);
+				finalColor.g = pow(finalColor.g, 1/2.2);
+				finalColor.b = pow(finalColor.b, 1/2.2);
 				sampler.setSampleColor(k, finalColor);
-				sampler.setIsSampleHit(k, true);
+				sampler.setIsSampleHit(k, true);				
 			}
 			else
 			{				
-				sampler.setSampleColor(k, background.Sample(sampleRay.dir)/*noHitPixelColor*/);
+				sampler.setSampleColor(k, background.Sample(sampleRay.dir));
 			}
 			sampler.setHitInfo(k, hitInfo);
 		}
@@ -202,6 +206,4 @@ void Renderer::calculatePixelColor(Node &i_rootNode, LightList &i_lightList, int
 	bool bSuccess = ReleaseMutex(mutexHandle);
 	assert(bSuccess == true);
 	sampler.resetSampler();
-	//delete mGI;
-	//delete sampler;	
 }

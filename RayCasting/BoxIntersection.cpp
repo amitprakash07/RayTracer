@@ -10,6 +10,8 @@ bool Box::IntersectRay(const Ray& r, float t_max) const
 	float ty1, ty2, tyEntry, tyExit;
 	float tz1, tz2, tzEntry, tzExit;
 
+	tx1 = tx2 = txEntry = txExit = ty1 = ty2 = tyEntry = tyExit = tz1 = tz2 = tzEntry = tzExit = BIGFLOAT;
+
 	//Check X-Normal
 	if (r.dir.x != 0.0f)
 	{

@@ -2,7 +2,7 @@
 #include <time.h>
 #include "utils.h"
 
-#define IMPORTANCE_SAMPLING 0
+#define IMPORTANCE_SAMPLING 1
 
 HemiSphereSampler::HemiSphereSampler(int i_minSampleCount, int i_maxSampleCount, float i_radius, Point3 i_origin, Point3 i_target)
 {
@@ -83,17 +83,23 @@ void HemiSphereSampler::generateSampleUnifromly()
 void HemiSphereSampler::generateSamplesWithImportanceSampling()
 {
 	Sample tempSample;
+	Point3 offset;
 	float tempRadius = 0.0f;
 	float theta = 0.0f;
 	float phi = 0.0f;
+	float r1 = 0.0f;
+	float r2 = 0.0f;;
 	for (int i = 0; i < getCurrentSampleCount(); ++i)
 	{
-		tempRadius = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
-		theta = 0.5f * acos(1 - (2 * tempRadius));
-		phi = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 360.0f;
-		Point3 offset = getSphericalCoordinates(tempRadius, theta, phi);
+		r1 = getRandomNumber(0, 1);
+		r2 = getRandomNumber(0, 1);
+		phi = 2 * M_PI*r1;
+		theta = acosf(sqrtf(r2));
+		offset.x = cos(2 * M_PI*r1)* sqrtf(1 - r2);
+		offset.y = sin(2 * M_PI*r1)*sqrtf(1 - r2);
+		offset.z = sqrtf(r2);
 		tempSample.setOffset(offset);
-		addSampleToList(tempSample);
+		addSampleToList(tempSample);		
 	}
 }
 

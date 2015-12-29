@@ -25,7 +25,7 @@ public:
 	{
 	}
 
-	virtual Color Shade(const Ray& ray, const HitInfo& hInfo, const LightList& lights, int bounceCount) const override;
+	virtual Color Shade(const Ray& ray, const HitInfo& hInfo, const LightList& lights, int bounceCount, int gi_bounceCount=0) const override;
 	 
 	void SetDiffuse(Color dif)
 	{
@@ -123,7 +123,7 @@ public:
 			delete mtls[i];
 	}
 
-	virtual Color Shade(const Ray& ray, const HitInfo& hInfo, const LightList& lights, int bounceCount) const override
+	virtual Color Shade(const Ray& ray, const HitInfo& hInfo, const LightList& lights, int bounceCount, int gi_bounceCount=0) const override
 	{
 		return hInfo.mtlID < (int)mtls.size() ? mtls[hInfo.mtlID]->Shade(ray, hInfo, lights, bounceCount) : Color(1, 1, 1);
 	}
