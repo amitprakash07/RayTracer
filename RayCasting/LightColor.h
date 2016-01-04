@@ -4,7 +4,6 @@
 #include "scene.h"
 
 
-
 inline Color specularComponent(const Light *i_light, Point3 i_viewDirection, HitInfo i_hInfo, Color i_specular, float i_glossiness )
 {
 	Color o_specularComponent = Color(0, 0, 0);
@@ -13,7 +12,8 @@ inline Color specularComponent(const Light *i_light, Point3 i_viewDirection, Hit
 	if (geometryTerm > 0)
 	{
 		Point3 halfVector = (((-1)*i_light->Direction(i_hInfo.p)) + i_viewDirection).GetNormalized();
-		o_specularComponent = i_specular * pow(halfVector.Dot(i_hInfo.N), i_glossiness) * i_light->Illuminate(i_hInfo.p, i_hInfo.N)*geometryTerm;
+		o_specularComponent = i_specular * pow(halfVector.Dot(i_hInfo.N), i_glossiness) * 
+				i_light->Illuminate(i_hInfo.p, i_hInfo.N)*geometryTerm;
 	}
 	
 	o_specularComponent.ClampMinMax();

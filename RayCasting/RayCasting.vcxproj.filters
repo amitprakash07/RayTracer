@@ -29,6 +29,18 @@
     <Filter Include="cyCodeBase">
       <UniqueIdentifier>{2d9d4027-0601-4ec0-b0f3-62eacc910d0f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Texture">
+      <UniqueIdentifier>{6028a1b3-e315-4868-a97b-73ba2e2779b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Maths">
+      <UniqueIdentifier>{a28c0029-b60f-4cfc-8146-61439829a244}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sampling">
+      <UniqueIdentifier>{026a06a9-ecbe-478d-84a7-cbe09ddfec2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Threading">
+      <UniqueIdentifier>{52e659ce-098e-477b-8dd3-2365282a7b27}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="viewport.cpp">
@@ -67,6 +79,46 @@
     </ClCompile>
     <ClCompile Include="BVHTraversal.cpp">
       <Filter>Intersection</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomSampler.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
+    <ClCompile Include="Sample.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
+    <ClCompile Include="SphereSampler.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
+    <ClCompile Include="Sampler.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
+    <ClCompile Include="CircleSampler.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="HemiSphereSampler.cpp">
+      <Filter>Sampling</Filter>
+    </ClCompile>
+    <ClCompile Include="MonteCarloGI.cpp">
+      <Filter>Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="PathTracer.cpp">
+      <Filter>Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>Maths</Filter>
+    </ClCompile>
+    <ClCompile Include="Threading\Event.cpp">
+      <Filter>Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="Threading\Mutex.cpp">
+      <Filter>Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="Threading\Semaphore.cpp">
+      <Filter>Threading</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,23 +159,76 @@
     <ClInclude Include="RayIntersection.h">
       <Filter>Intersection</Filter>
     </ClInclude>
-    <ClInclude Include="cyColor.h">
-      <Filter>cyCodeBase</Filter>
-    </ClInclude>
-    <ClInclude Include="cyMatrix-1\cyMatrix2.h">
-      <Filter>cyCodeBase</Filter>
-    </ClInclude>
-    <ClInclude Include="cyMatrix-1\cyMatrix3.h">
-      <Filter>cyCodeBase</Filter>
-    </ClInclude>
-    <ClInclude Include="cyMatrix-1\cyMatrix4.h">
-      <Filter>cyCodeBase</Filter>
-    </ClInclude>
-    <ClInclude Include="cyPoint-1\cyPoint.h">
-      <Filter>cyCodeBase</Filter>
+    <ClInclude Include="texture.h">
+      <Filter>Texture</Filter>
     </ClInclude>
     <ClInclude Include="cyCodeBase\cyBVH.h">
       <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyColor.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyMatrix2.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyMatrix3.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyMatrix4.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyPoint.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="cyCodeBase\cyTriMesh.h">
+      <Filter>cyCodeBase</Filter>
+    </ClInclude>
+    <ClInclude Include="Maths.h">
+      <Filter>Maths</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Maths</Filter>
+    </ClInclude>
+    <ClInclude Include="Sampler.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomSampler.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="Sample.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="SphereSampler.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="CircleSampler.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="IIndirectLight.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="MonteCarloGI.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="PathTracer.h">
+      <Filter>Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="HemiSphereSampler.h">
+      <Filter>Sampling</Filter>
+    </ClInclude>
+    <ClInclude Include="AdditionalImage.h" />
+    <ClInclude Include="Threading\Event.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="Threading\Mutex.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="Threading\Semaphore.h">
+      <Filter>Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="Threading\WaitableObject.h">
+      <Filter>Threading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -2,8 +2,8 @@
 ///
 /// \file       xmlload.cpp 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    5.0
-/// \date       September 24, 2015
+/// \version    10.0
+/// \date       November 4, 2015
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
@@ -13,7 +13,9 @@
 #include "objects.h"
 #include "materials.h"
 #include "lights.h"
+#include "texture.h"
 #include "tinyxml/tinyxml.h"
+
 
 //-------------------------------------------------------------------------------
 
@@ -23,13 +25,16 @@ extern RenderImage renderImage;
 extern MaterialList materials;
 extern LightList lights;
 extern ObjFileList objList;
+extern TexturedColor background;
+extern TexturedColor environment;
+extern TextureList textureList;
 
 //-------------------------------------------------------------------------------
 
 #ifdef WIN32
 #define COMPARE(a,b) (_stricmp(a,b)==0)
 #else
-#define COMPARE(a,b) (strcasecmp(a,b)==0)
+#define COMPARE(a,b) (_stricmp(a,b)==0)
 #endif
 
 //-------------------------------------------------------------------------------
@@ -42,6 +47,8 @@ void LoadLight(TiXmlElement *element);
 void ReadVector(TiXmlElement *element, Point3 &v);
 void ReadColor (TiXmlElement *element, Color  &c);
 void ReadFloat (TiXmlElement *element, float  &f, const char *name="value");
+TextureMap* ReadTexture(TiXmlElement *element);
+Texture* ReadTexture(const char *filename);
 
 //-------------------------------------------------------------------------------
 
@@ -86,6 +93,7 @@ int LoadScene(const char *filename)
 	materials.DeleteAll();
 	lights.DeleteAll();
 	objList.Clear();
+	textureList.Clear();
 	LoadScene( scene );
 
 	rootNode.ComputeChildBoundBox();
@@ -107,6 +115,8 @@ int LoadScene(const char *filename)
 		else if ( COMPARE( camChild->Value(), "target"    ) ) ReadVector(camChild,camera.dir);
 		else if ( COMPARE( camChild->Value(), "up"        ) ) ReadVector(camChild,camera.up);
 		else if ( COMPARE( camChild->Value(), "fov"       ) ) ReadFloat (camChild,camera.fov);
+		else if ( COMPARE( camChild->Value(), "focaldist" ) ) ReadFloat (camChild,camera.focaldist);
+		else if ( COMPARE( camChild->Value(), "dof"       ) ) ReadFloat (camChild,camera.dof);
 		else if ( COMPARE( camChild->Value(), "width"     ) ) camChild->QueryIntAttribute("value", &camera.imgWidth);
 		else if ( COMPARE( camChild->Value(), "height"    ) ) camChild->QueryIntAttribute("value", &camera.imgHeight);
 		camChild = camChild->NextSiblingElement();
@@ -131,7 +141,19 @@ void LoadScene(TiXmlElement *element)
 {
 	for ( TiXmlElement *child = element->FirstChildElement(); child!=NULL; child = child->NextSiblingElement() ) {
 
-		if ( COMPARE( child->Value(), "object" ) ) {
+		if ( COMPARE( child->Value(), "background" ) ) {
+			Color c(1,1,1);
+			ReadColor( child, c );
+			background.SetColor(c);
+			printf("Background %f %f %f\n",c.r,c.g,c.b);
+			background.SetTexture( ReadTexture(child) );
+		} else if ( COMPARE( child->Value(), "environment" ) ) {
+			Color c(1,1,1);
+			ReadColor( child, c );
+			environment.SetColor(c);
+			printf("Environment %f %f %f\n",c.r,c.g,c.b);
+			environment.SetTexture( ReadTexture(child) );
+		} else if ( COMPARE( child->Value(), "object" ) ) {
 			LoadNode( &rootNode, child );
 		} else if ( COMPARE( child->Value(), "material" ) ) {
 			LoadMaterial( child );
@@ -180,12 +202,45 @@ void LoadNode(Node *parent, TiXmlElement *element, int level)
 			Object *obj = objList.Find(name);
 			if ( obj == NULL ) {	// object is not on the list, so we should load it now
 				TriObj *tobj = new TriObj;
-				if ( ! tobj->Load( name ) ) {
+				if ( ! tobj->Load( name, mtlName==NULL ) ) {
 					printf(" -- ERROR: Cannot load file \"%s.\"", name);
 					delete tobj;
 				} else {
 					objList.Append(tobj,name);	// add to the list
 					obj = tobj;
+					// generate multi-material
+					if ( tobj->NM() > 0 ) {
+						if ( materials.Find(name) == NULL ) {
+							MultiMtl *mm = new MultiMtl;
+							for ( unsigned int i=0; i<tobj->NM(); i++ ) {
+								MtlBlinn *m = new MtlBlinn;
+								const cyTriMesh::cyMtl &mtl = tobj->M(i);
+								m->SetDiffuse( Color(mtl.Kd) );
+								m->SetSpecular( Color(mtl.Ks) );
+								m->SetGlossiness( mtl.Ns );
+								m->SetRefractionIndex( mtl.Ni );
+								if ( mtl.map_Kd.name[0] != '\0' ) m->SetDiffuseTexture( new TextureMap(ReadTexture(mtl.map_Kd.name)) );
+								if ( mtl.map_Ks.name[0] != '\0' ) m->SetDiffuseTexture( new TextureMap(ReadTexture(mtl.map_Ks.name)) );
+								if ( mtl.illum > 2 && mtl.illum <= 7 ) {
+									m->SetReflection( Color(mtl.Ks) );
+									if ( mtl.map_Ks.name[0] != '\0' ) m->SetReflectionTexture( new TextureMap(ReadTexture(mtl.map_Ks.name)) );
+									float gloss = acosf(powf(2,-1/mtl.Ns));
+									m->SetReflectionGlossiness(gloss);
+									if ( mtl.illum >= 6 ) {
+										m->SetRefraction( 1 - Color(mtl.Tf) );
+										m->SetRefractionGlossiness(gloss);
+									}
+								}
+								mm->AppendMaterial(m);
+							}
+							mm->SetName(name);
+							materials.push_back(mm);
+							NodeMtl nm;
+							nm.node = node;
+							nm.mtlName = name;
+							nodeMtlList.push_back(nm);
+						}
+					}
 				}
 			}
 			node->SetNodeObj( obj );
@@ -263,24 +318,43 @@ void LoadMaterial(TiXmlElement *element)
 					ReadColor( child, c );
 					m->SetDiffuse(c);
 					printf("   diffuse %f %f %f\n",c.r,c.g,c.b);
+					m->SetDiffuseTexture( ReadTexture(child) );
 				} else if ( COMPARE( child->Value(), "specular" ) ) {
 					ReadColor( child, c );
 					m->SetSpecular(c);
 					printf("   specular %f %f %f\n",c.r,c.g,c.b);
+					m->SetSpecularTexture( ReadTexture(child) );
 				} else if ( COMPARE( child->Value(), "glossiness" ) ) {
 					ReadFloat( child, f );
 					m->SetGlossiness(f);
 					printf("   glossiness %f\n",f);
+				} else if ( COMPARE( child->Value(), "emission" ) ) {
+					ReadColor( child, c );
+					m->SetEmission(c);
+					printf("   emission %f %f %f\n",c.r,c.g,c.b);
+					m->SetEmissionTexture( ReadTexture(child) );
 				} else if ( COMPARE( child->Value(), "reflection" ) ) {
 					ReadColor( child, c );
 					m->SetReflection(c);
-					printf("   reflection %f %f %f\n",c.r,c.g,c.b);
+					printf("   reflection %f %f %f",c.r,c.g,c.b);
+					m->SetReflectionTexture( ReadTexture(child) );
+					f = 0;
+					ReadFloat( child, f, "glossiness" );
+					m->SetReflectionGlossiness(f);
+					if ( f > 0 ) printf(" (glossiness %f)",f);
+					printf("\n");
 				} else if ( COMPARE( child->Value(), "refraction" ) ) {
 					ReadColor( child, c );
 					m->SetRefraction(c);
 					ReadFloat( child, f, "index" );
 					m->SetRefractionIndex(f);
-					printf("   refraction %f %f %f (index %f)\n",c.r,c.g,c.b,f);
+					printf("   refraction %f %f %f (index %f)",c.r,c.g,c.b,f);
+					m->SetRefractionTexture( ReadTexture(child) );
+					f = 0;
+					ReadFloat( child, f, "glossiness" );
+					m->SetRefractionGlossiness(f);
+					if ( f > 0 ) printf(" (glossiness %f)",f);
+					printf("\n");
 				} else if ( COMPARE( child->Value(), "absorption" ) ) {
 					ReadColor( child, c );
 					m->SetAbsorption(c);
@@ -357,6 +431,11 @@ void LoadLight(TiXmlElement *element)
 					ReadVector( child, v );
 					l->SetPosition(v);
 					printf("   position %f %f %f\n",v.x,v.y,v.z);
+				} else if ( COMPARE( child->Value(), "size" ) ) {
+					float f = 0;
+					ReadFloat( child, f );
+					l->SetSize(f);
+					printf("   size %f\n",f);
 				}
 			}
 		} else {
@@ -416,6 +495,64 @@ void ReadFloat (TiXmlElement *element, float &f, const char *name)
 	double d = (double) f;
 	element->QueryDoubleAttribute( name, &d );
 	f = (float) d;
+}
+
+//-------------------------------------------------------------------------------
+
+TextureMap* ReadTexture(TiXmlElement *element)
+{
+	const char* texName = element->Attribute("texture");
+	if ( texName == NULL ) return NULL;
+
+	Texture *tex = NULL;
+	if ( COMPARE(texName,"checkerboard") ) {
+		TextureChecker *ctex = new TextureChecker;
+		tex = ctex;
+		printf("      Texture: Checker Board\n");
+		for ( TiXmlElement *child = element->FirstChildElement(); child!=NULL; child = child->NextSiblingElement() ) {
+			if ( COMPARE( child->Value(), "color1" ) ) {
+				Color c(0,0,0);
+				ReadColor( child, c );
+				ctex->SetColor1(c);
+				printf("         color1 %f %f %f\n",c.r,c.g,c.b);
+			} else if ( COMPARE( child->Value(), "color2" ) ) {
+				Color c(0,0,0);
+				ReadColor( child, c );
+				ctex->SetColor2(c);
+				printf("         color2 %f %f %f\n",c.r,c.g,c.b);
+			}
+		}
+		textureList.Append( tex, texName );
+	} else {
+		tex = ReadTexture( texName );
+	}
+
+	TextureMap *map = new TextureMap(tex);
+	LoadTransform(map,element,1);
+	return map;
+}
+
+//-------------------------------------------------------------------------------
+
+Texture* ReadTexture(const char *texName)
+{
+	printf("      Texture: File \"%s\"",texName);
+	Texture *tex = textureList.Find( texName );
+	if ( tex == NULL ) {
+		TextureFile *ftex = new TextureFile;
+		tex = ftex;
+		ftex->SetName(texName);
+		if ( ! ftex->Load() ) {
+			printf(" -- Error loading file!");
+			delete tex;
+			tex = NULL;
+		} else {
+			textureList.Append( tex, texName );
+		}
+	}
+	printf("\n");
+
+	return tex;
 }
 
 //-------------------------------------------------------------------------------

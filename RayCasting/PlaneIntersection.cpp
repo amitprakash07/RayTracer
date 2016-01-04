@@ -10,11 +10,14 @@ bool Plane::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 	As Normal is in Z direction, we have to only calculate z component 
 	and we are in plane coordinate thus D(of the plane equation)=0
 	*/
-	float t = -(ray.p.z / ray.dir.z);
+	//hInfo.operationCount++;
+	float t = 0.0f;
+	t = -(ray.p.z / ray.dir.z);
 	bool isHit = false;
 	if(t >= PLANEBIAS && t < hInfo.z && hitSide == HIT_FRONT)
 	{
 		hInfo.p = ray.p + t * ray.dir;
+		hInfo.uvw = (hInfo.p + Point3(1.0f,1.0f,1.0f))/2;
 		hInfo.N = Point3(0, 0, 1);
 		hInfo.z = t;
 		if (ray.dir.Dot(hInfo.N) > 0)
@@ -26,6 +29,7 @@ bool Plane::IntersectRay(const Ray& ray, HitInfo& hInfo, int hitSide) const
 	if(t >= PLANEBIAS && t> hInfo.z && hitSide==HIT_BACK)
 	{
 		hInfo.p = ray.p + t * ray.dir;
+		hInfo.uvw = (hInfo.p  + Point3(1.0f, 1.0f, 1.0f))/2;
 		hInfo.N = Point3(0, 0, 1);
 		hInfo.z = t;
 		if (ray.dir.Dot(hInfo.N) > 0)

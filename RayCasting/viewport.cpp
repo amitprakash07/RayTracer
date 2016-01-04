@@ -2,31 +2,33 @@
 ///
 /// \file       viewport.cpp 
 /// \author     Cem Yuksel (www.cemyuksel.com)
-/// \version    5.0
-/// \date       September 24, 2015
+/// \version    11.0
+/// \date       November 11, 2015
 ///
 /// \brief Example source for CS 6620 - University of Utah.
 ///
 //-------------------------------------------------------------------------------
 
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+//#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include "scene.h"
 #include "objects.h"
 #include "lights.h"
 #include "materials.h"
 #include <stdlib.h>
-#include "freeglut/include/GL/glut.h"
+#include <GL/glut.h>
 #include <time.h>
+#include "Renderer.h"
 
 //-------------------------------------------------------------------------------
 
-void BeginRender() {}	// Called to start rendering (renderer must run in a separate thread)
-void StopRender() {}	// Called to end rendering (if it is not already finished)
+//void BeginRender(){}	// Called to start rendering (renderer must run in a separate thread)
+//void StopRender() {}	// Called to end rendering (if it is not already finished)
 
 extern Node rootNode;
 extern Camera camera;
 extern RenderImage renderImage;
 extern LightList lights;
+extern TexturedColor background;
 
 //-------------------------------------------------------------------------------
 
@@ -41,6 +43,9 @@ enum ViewMode
 	VIEWMODE_OPENGL,
 	VIEWMODE_IMAGE,
 	VIEWMODE_Z,
+	VIEWMODE_SAMPLECOUNT,
+	VIEWMODE_IRRADCOMP,
+	VIEWMODE_OPERATIONCOUNT
 };
 
 enum MouseMode {
@@ -55,6 +60,11 @@ static MouseMode mouseMode	= MOUSEMODE_NONE;	// Mouse mode
 static int		startTime;						// Start time of rendering
 static int mouseX=0, mouseY=0;
 static float viewAngle1=0, viewAngle2=0;
+
+static int		dofDrawCount = 0;
+static Color	*dofImage = NULL;
+static Color24	*dofBuffer = NULL;
+#define MAX_DOF_DRAW	32
 
 //-------------------------------------------------------------------------------
 
@@ -88,7 +98,8 @@ void ShowViewport()
 	glutMouseFunc(GlutMouse);
 	glutMotionFunc(GlutMotion);
 
-	glClearColor(0,0,0,0);
+	Color bg = background.GetColor();
+	glClearColor(bg.r,bg.g,bg.b,0);
 
 	glPointSize(3.0);
 	glEnable( GL_CULL_FACE );
@@ -99,6 +110,12 @@ void ShowViewport()
 	glEnable(GL_NORMALIZE);
 
 	glLineWidth(2);
+
+	if ( camera.dof > 0 ) {
+		dofBuffer = new Color24[ camera.imgWidth * camera.imgHeight ];
+		dofImage = new Color[ camera.imgWidth * camera.imgHeight ];
+		memset( dofImage, 0, camera.imgWidth * camera.imgHeight * sizeof(Color) );
+	}
 
 	glutMainLoop();
 }
@@ -152,13 +169,57 @@ void DrawScene()
 {
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 
+	const TextureMap *bgMap = background.GetTexture();
+	if ( bgMap ) {
+		glDepthMask(GL_FALSE);
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		glMatrixMode(GL_MODELVIEW);
+		Color c = background.GetColor();
+		glColor3f(c.r,c.g,c.b);
+		if ( bgMap->SetViewportTexture() ) {
+			glEnable( GL_TEXTURE_2D );
+			glMatrixMode( GL_TEXTURE );
+			Matrix3 tm = bgMap->GetInverseTransform();
+			Point3 p = tm * bgMap->GetPosition();
+			float m[16] = { tm[0],tm[1],tm[2],0, tm[3],tm[4],tm[5],0, tm[6],tm[7],tm[8],0, -p.x,-p.y,-p.z,1 };
+			glLoadMatrixf( m );
+			glMatrixMode( GL_MODELVIEW );
+		} else {
+			glDisable( GL_TEXTURE_2D );
+		}
+		glBegin(GL_QUADS);
+		glTexCoord2f(0,1);
+		glVertex2f(-1,-1);
+		glTexCoord2f(1,1);
+		glVertex2f( 1,-1);
+		glTexCoord2f(1,0);
+		glVertex2f( 1, 1);
+		glTexCoord2f(0,0);
+		glVertex2f(-1, 1);
+		glEnd();
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glDepthMask(GL_TRUE);
+
+		glDisable( GL_TEXTURE_2D );
+	}
+
 	glEnable( GL_LIGHTING );
 	glEnable( GL_DEPTH_TEST );
 
 	glPushMatrix();
 	Point3 p = camera.pos;
-	Point3 t = camera.pos + camera.dir;
+	Point3 t = camera.pos + camera.dir*camera.focaldist;
 	Point3 u = camera.up;
+	if ( camera.dof > 0 ) {
+		Point3 v = camera.dir ^ camera.up;
+		float r = sqrtf(float(rand())/RAND_MAX)*camera.dof;
+		float a = static_cast<float>(M_PI * 2.0f * float(rand())/RAND_MAX);
+		p += r*cosf(a)*v + r*sinf(a)*u;
+	}
 	gluLookAt( p.x, p.y, p.z,  t.x, t.y, t.z,  u.x, u.y, u.z );
 
 	glRotatef( viewAngle1, 1, 0, 0 );
@@ -185,6 +246,7 @@ void DrawScene()
 
 	glDisable( GL_DEPTH_TEST );
 	glDisable( GL_LIGHTING );
+	glDisable( GL_TEXTURE_2D );
 }
 
 //-------------------------------------------------------------------------------
@@ -225,7 +287,24 @@ void GlutDisplay()
 {
 	switch ( viewMode ) {
 	case VIEWMODE_OPENGL:
-		DrawScene();
+		if ( dofImage ) {
+			if ( dofDrawCount < MAX_DOF_DRAW ) {
+				DrawScene();
+				glReadPixels( 0, 0, camera.imgWidth, camera.imgHeight, GL_RGB, GL_UNSIGNED_BYTE, dofBuffer );
+				for ( int i=0; i<camera.imgWidth*camera.imgHeight; i++ ) {
+					dofImage[i] = (dofImage[i] * dofDrawCount + dofBuffer[i].ToColor()) / (dofDrawCount + 1);
+				}
+				dofDrawCount++;
+			}
+			glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+			glDrawPixels( camera.imgWidth, camera.imgHeight, GL_RGB, GL_FLOAT, dofImage );
+			if ( dofDrawCount < MAX_DOF_DRAW ) {
+				DrawProgressBar(float(dofDrawCount)/MAX_DOF_DRAW);
+				glutPostRedisplay();
+			}
+		} else {
+			DrawScene();
+		}
 		break;
 	case VIEWMODE_IMAGE:
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
@@ -236,6 +315,23 @@ void GlutDisplay()
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
 		if ( ! renderImage.GetZBufferImage() ) renderImage.ComputeZBufferImage();
 		glDrawPixels( renderImage.GetWidth(), renderImage.GetHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, renderImage.GetZBufferImage() );
+		break;
+	case VIEWMODE_SAMPLECOUNT:
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+		if ( ! renderImage.GetSampleCountImage() ) renderImage.ComputeSampleCountImage();
+		glDrawPixels( renderImage.GetWidth(), renderImage.GetHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, renderImage.GetSampleCountImage() );
+		break;
+	case VIEWMODE_IRRADCOMP:
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
+		if ( renderImage.GetIrradianceComputationImage() ) {
+			glDrawPixels( renderImage.GetWidth(), renderImage.GetHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, renderImage.GetIrradianceComputationImage() );
+		}
+		break;
+	case VIEWMODE_OPERATIONCOUNT:
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		if (renderImage.GetOperationCountImage()) {
+			glDrawPixels(renderImage.GetWidth(), renderImage.GetHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, renderImage.GetOperationCountImage());
+		}
 		break;
 	}
 
@@ -262,6 +358,7 @@ void GlutIdle()
 			}
 			glutPostRedisplay();
 		}
+		if ( viewMode == VIEWMODE_IRRADCOMP ) glutPostRedisplay();
 	}
 }
 
@@ -278,9 +375,14 @@ void GlutKeyboard(unsigned char key, int x, int y)
 		case MODE_READY: 
 			mode = MODE_RENDERING;
 			viewMode = VIEWMODE_IMAGE;
-			DrawScene();
-			glReadPixels( 0, 0, renderImage.GetWidth(), renderImage.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, renderImage.GetPixels() );
-			startTime = time(NULL);
+			if ( dofImage ) {
+				Color24 *p = renderImage.GetPixels();
+				for ( int i=0; i<camera.imgWidth*camera.imgHeight; i++ ) p[i] = dofImage[i];
+			} else {
+				DrawScene();
+				glReadPixels( 0, 0, renderImage.GetWidth(), renderImage.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, renderImage.GetPixels() );
+			}
+			startTime = static_cast<int>(time(nullptr));
 			BeginRender();
 			break;
 		case MODE_RENDERING:
@@ -308,6 +410,19 @@ void GlutKeyboard(unsigned char key, int x, int y)
 		viewMode = VIEWMODE_Z;
 		glutPostRedisplay();
 		break;
+	case '4':
+		viewMode = VIEWMODE_SAMPLECOUNT;
+		glutPostRedisplay();
+		break;
+	case '5':
+		viewMode = VIEWMODE_IRRADCOMP;
+		glutPostRedisplay();
+		break;
+	case '6':
+		viewMode = VIEWMODE_OPERATIONCOUNT;
+		glutPostRedisplay();
+		break;
+		
 	}
 }
 
@@ -372,25 +487,33 @@ void Sphere::ViewportDisplay(const Material *mtl) const
 	static GLUquadric *q = NULL;
 	if ( q == NULL ) {
 		q = gluNewQuadric();
+		gluQuadricTexture(q,true);
 	}
 	gluSphere(q,1,50,50);
 }
 void Plane::ViewportDisplay(const Material *mtl) const
 {
 	const int resolution = 32;
+	float xyInc = 2.0f / resolution;
+	float uvInc = 1.0f / resolution;
 	glPushMatrix();
-	glScalef(2.0f/resolution,2.0f/resolution,2.0f/resolution);
 	glNormal3f(0,0,1);
 	glBegin(GL_QUADS);
+	float y1=-1, y2=xyInc-1, v1=0, v2=uvInc;
 	for ( int y=0; y<resolution; y++ ) {
-		float yy = y - resolution/2;
+		float x1=-1, x2=xyInc-1, u1=0, u2=uvInc;
 		for ( int x=0; x<resolution; x++ ) {
-			float xx = x - resolution/2;
-			glVertex3f( yy,   xx,   0 );
-			glVertex3f( yy+1, xx,   0 );
-			glVertex3f( yy+1, xx+1, 0 );
-			glVertex3f( yy,   xx+1, 0 );
+			glTexCoord2f(u1, v1);
+			glVertex3f ( x1, y1, 0 );
+			glTexCoord2f(u2, v1);
+			glVertex3f ( x2, y1, 0 );
+			glTexCoord2f(u2, v2);
+			glVertex3f ( x2, y2, 0 );
+			glTexCoord2f(u1, v2);
+			glVertex3f ( x1, y2, 0 );
+			x1=x2; x2+=xyInc; u1=u2; u2+=uvInc;
 		}
+		y1=y2; y2+=xyInc; v1=v2; v2+=uvInc;
 	}
 	glEnd();
 	glPopMatrix();
@@ -398,7 +521,22 @@ void Plane::ViewportDisplay(const Material *mtl) const
 void TriObj::ViewportDisplay(const Material *mtl) const
 {
 	glBegin(GL_TRIANGLES);
+	unsigned int nextMtlID = 0;
+	unsigned int nextMtlSwith = NF();
+	if ( mtl && NM() > 0 ) {
+		mtl->SetViewportMaterial(0);
+		nextMtlSwith = GetMaterialFaceCount(0);
+		nextMtlID = 1;
+	}
 	for ( unsigned int i=0; i<NF(); i++ ) {
+		while ( i >= nextMtlSwith ) {
+			if ( nextMtlID >= NM() ) nextMtlSwith = NF();
+			else {
+				nextMtlSwith += GetMaterialFaceCount(nextMtlID);
+				mtl->SetViewportMaterial(nextMtlID);
+				nextMtlID++;
+			}
+		}
 		for ( int j=0; j<3; j++ ) {
 			if ( HasTextureVertices() ) glTexCoord3fv( &VT( FT(i).v[j] ).x );
 			if ( HasNormals() ) glNormal3fv( &VN( FN(i).v[j] ).x );
@@ -410,11 +548,25 @@ void TriObj::ViewportDisplay(const Material *mtl) const
 void MtlBlinn::SetViewportMaterial(int subMtlID) const
 {
 	ColorA c;
-	c = diffuse;
+	c = diffuse.GetColor();
 	glMaterialfv( GL_FRONT, GL_AMBIENT_AND_DIFFUSE, &c.r );
-	c = specular;
+	c = specular.GetColor();
 	glMaterialfv( GL_FRONT, GL_SPECULAR, &c.r );
 	glMaterialf( GL_FRONT, GL_SHININESS, glossiness*1.5f );
+	c = emission.GetColor();
+	glMaterialfv( GL_FRONT, GL_EMISSION, &c.r );
+	const TextureMap *dm = diffuse.GetTexture();
+	if ( dm && dm->SetViewportTexture() ) {
+		glEnable( GL_TEXTURE_2D );
+		glMatrixMode( GL_TEXTURE );
+		Matrix3 tm = dm->GetInverseTransform();
+		Point3 p = tm * dm->GetPosition();
+		float m[16] = { tm[0],tm[1],tm[2],0, tm[3],tm[4],tm[5],0, tm[6],tm[7],tm[8],0, -p.x,-p.y,-p.z,1 };
+		glLoadMatrixf( m );
+		glMatrixMode( GL_MODELVIEW );
+	} else {
+		glDisable( GL_TEXTURE_2D );
+	}
 }
 void GenLight::SetViewportParam(int lightID, ColorA ambient, ColorA intensity, Point4 pos ) const
 {

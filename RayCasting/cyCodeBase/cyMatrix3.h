@@ -42,47 +42,122 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	///@name Constructors
 	cyMatrix3f() {}	///< Default constructor
-	cyMatrix3f( const cyMatrix3f &matrix ) { for ( int i=0; i<9; i++ ) data[i]=matrix.data[i]; } ///< Copy constructor
-	cyMatrix3f( const cyPoint3f &p ) { Set(p); }	///< Matrix formulation of the cross product
+	cyMatrix3f(const cyMatrix3f& matrix)
+	{
+		for (int i = 0; i < 9; i++)
+			data[i] = matrix.data[i];
+	} ///< Copy constructor
+	cyMatrix3f(const cyPoint3f& p)
+	{
+		Set(p);
+	} ///< Matrix formulation of the cross product
 
 
 	//////////////////////////////////////////////////////////////////////////
 	///@name Set & Get Methods
 
 	/// Set all the values as zero
-	void Zero() { for ( int i=0; i<9; i++ ) data[ i ] = 0; }
+	void Zero()
+	{
+		for (int i = 0; i < 9; i++)
+			data[i] = 0;
+	}
+
 	/// Set Matrix using an array of 9 values
-	void Set( const float *array ) { for ( int i=0; i<9; i++ ) data[ i ] = array[ i ]; } 
+	void Set(const float* array)
+	{
+		for (int i = 0; i < 9; i++)
+			data[i] = array[i];
+	}
+
 	/// Matrix formulation of the cross product
-	void Set( const cyPoint3f &p ) { data[0]=0; data[1]=p.z; data[2]=-p.y; data[3]=-p.z; data[4]=0; data[5]=p.x; data[6]=p.y; data[7]=-p.x; data[8]=0; }
+	void Set(const cyPoint3f& p)
+	{
+		data[0] = 0;
+		data[1] = p.z;
+		data[2] = -p.y;
+		data[3] = -p.z;
+		data[4] = 0;
+		data[5] = p.x;
+		data[6] = p.y;
+		data[7] = -p.x;
+		data[8] = 0;
+	}
+
 	/// Set Matrix using x,y,z vectors and coordinate center
-	void Set( const cyPoint3f &x, const cyPoint3f &y, const cyPoint3f &z );
+	void Set(const cyPoint3f& x, const cyPoint3f& y, const cyPoint3f& z);
+
 	/// Converts the matrix to an identity matrix
-	void SetIdentity() { for(int i=0; i<9; i++ ) data[i]=(i%4==0) ? 1.0f : 0.0f ; }
+	void SetIdentity()
+	{
+		for (int i = 0; i < 9; i++)
+			data[i] = (i % 4 == 0) ? 1.0f : 0.0f ;
+	}
+
 	/// Set View Matrix using position, target and approximate up vector
-	void SetView( const cyPoint3f &target, cyPoint3f &up );
+	void SetView(const cyPoint3f& target, cyPoint3f& up);
 	/// Set Matrix using normal, and approximate x direction
-	void SetNormal(const cyPoint3f &normal, cyPoint3f &dir );
+	void SetNormal(const cyPoint3f& normal, cyPoint3f& dir);
+
 	/// Set as rotation matrix around x axis
-	void SetRotationX( float theta ) { SetRotation( cyPoint3f(1,0,0), theta ); }
+	void SetRotationX(float theta)
+	{
+		SetRotation(cyPoint3f(1, 0, 0), theta);
+	}
+
 	/// Set as rotation matrix around y axis
-	void SetRotationY( float theta ) { SetRotation( cyPoint3f(0,1,0), theta ); }
+	void SetRotationY(float theta)
+	{
+		SetRotation(cyPoint3f(0, 1, 0), theta);
+	}
+
 	/// Set as rotation matrix around z axis
-	void SetRotationZ( float theta ) { SetRotation( cyPoint3f(0,0,1), theta ); }
+	void SetRotationZ(float theta)
+	{
+		SetRotation(cyPoint3f(0, 0, 1), theta);
+	}
+
 	/// Set a rotation matrix about the given axis by angle theta
-	void SetRotation( cyPoint3f axis, float theta );
+	void SetRotation(cyPoint3f axis, float theta);
 	/// Set a rotation matrix about the given axis by cos and sin of angle theta
-	void SetRotation( cyPoint3f axis, float cosTheta, float sinTheta );
+	void SetRotation(cyPoint3f axis, float cosTheta, float sinTheta);
 	/// Set a rotation matrix that sets <from> unit vector to <to> unit vector
-	void SetRotation( cyPoint3f from, cyPoint3f to );
+	void SetRotation(cyPoint3f from, cyPoint3f to);
 
 	// Get Row and Column
-	cyPoint3f GetRow( int row ) const { return cyPoint3f( data[row], data[row+3], data[row+6] ); }
-	void	  GetRow( int row, cyPoint3f &p ) const { p.Set( data[row], data[row+3], data[row+6] ); }
-	void	  GetRow( int row, float *array ) const { array[0]=data[row]; array[1]=data[row+3]; array[2]=data[row+6]; }
-	cyPoint3f GetColumn( int col ) const { return cyPoint3f( &data[col*3] ); }
-	void	  GetColumn( int col, cyPoint3f &p ) const { p.Set( &data[col*3] ); }
-	void	  GetColumn( int col, float *array ) const { array[0]=data[col*3]; array[1]=data[col*3+1]; array[2]=data[col*3+2]; }
+	cyPoint3f GetRow(int row) const
+	{
+		return cyPoint3f(data[row], data[row + 3], data[row + 6]);
+	}
+
+	void GetRow(int row, cyPoint3f& p) const
+	{
+		p.Set(data[row], data[row + 3], data[row + 6]);
+	}
+
+	void GetRow(int row, float* array) const
+	{
+		array[0] = data[row];
+		array[1] = data[row + 3];
+		array[2] = data[row + 6];
+	}
+
+	cyPoint3f GetColumn(int col) const
+	{
+		return cyPoint3f(&data[col * 3]);
+	}
+
+	void GetColumn(int col, cyPoint3f& p) const
+	{
+		p.Set(&data[col * 3]);
+	}
+
+	void GetColumn(int col, float* array) const
+	{
+		array[0] = data[col * 3];
+		array[1] = data[col * 3 + 1];
+		array[2] = data[col * 3 + 2];
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
@@ -92,13 +167,22 @@ public:
 
 	// Overloaded comparison operators 
 	bool operator==( const cyMatrix3f & ) const;		///< compare equal
-	bool operator!=( const cyMatrix3f &right ) const { return ! ( *this == right ); } ///< compare not equal
+	bool operator!=(const cyMatrix3f& right) const
+	{
+		return ! (*this == right);
+	} ///< compare not equal
 
 	// Overloaded subscript operators
-	float& operator()( int row, int column );					///< subscript operator
-	float& operator[](int i) { return data[i]; }				///< subscript operator
-	const float& operator()( int row, int column ) const;		///< constant subscript operator
-	const float& operator[](int i) const { return data[i]; }	///< constant subscript operator
+	float& operator()(int row, int column); ///< subscript operator
+	float& operator[](int i)
+	{
+		return data[i];
+	} ///< subscript operator
+	const float& operator()(int row, int column) const; ///< constant subscript operator
+	const float& operator[](int i) const
+	{
+		return data[i];
+	}	///< constant subscript operator
 	
 	// Unary operators
 	cyMatrix3f operator - () const;	///< negative matrix
@@ -128,8 +212,17 @@ public:
 	void SetTranspose();			///< Transpose this matrix
 	cyMatrix3f Transpose() const;	///< return Transpose of this matrix
 	void Invert();					///< Invert this matrix
-	void GetInverse( cyMatrix3f &inverse ) const { inverse=*this; inverse.Invert(); }	///< Get the inverse of this matrix
-	cyMatrix3f GetInverse() const { cyMatrix3f inv(*this); inv.Invert(); return inv; }	///< Get the inverse of this matrix
+	void GetInverse(cyMatrix3f& inverse) const
+	{
+		inverse = *this;
+		inverse.Invert();
+	} ///< Get the inverse of this matrix
+	cyMatrix3f GetInverse() const
+	{
+		cyMatrix3f inv(*this);
+		inv.Invert();
+		return inv;
+	}	///< Get the inverse of this matrix
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -266,7 +359,8 @@ inline cyPoint3f cyMatrix3f::operator * ( const cyPoint3f& p) const
 /// const return avoids ( a1 = a2 ) = a3
 inline const cyMatrix3f& cyMatrix3f::operator =( const cyMatrix3f &right )
 {
-	for ( int i=0; i<9; i++ ) data[i] = right.data[ i ];		// copy array into object
+	for ( int i=0; i<9; i++ ) 
+		data[i] = right.data[ i ];		// copy array into object
 	return *this;	// enables x = y = z;
 }
 

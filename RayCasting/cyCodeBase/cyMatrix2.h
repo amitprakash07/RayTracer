@@ -27,12 +27,14 @@
 
 class cyMatrix2f
 {
-	
-	friend cyMatrix2f operator+( const float, const cyMatrix2f & );			///< add a value to a matrix
-	friend cyMatrix2f operator-( const float, const cyMatrix2f & );			///< subtract the matrix from a value
-	friend cyMatrix2f operator*( const float, const cyMatrix2f & );			///< multiple matrix by a value
-	friend cyMatrix2f Inverse( cyMatrix2f &m ) { return m.GetInverse(); }	///< return the inverse of the matrix
-	friend cyPoint2f  operator*( const cyPoint2f &, const cyMatrix2f & );	///< pre-multiply with a 3D point
+	friend cyMatrix2f operator+(const float, const cyMatrix2f&); ///< add a value to a matrix
+	friend cyMatrix2f operator-(const float, const cyMatrix2f&); ///< subtract the matrix from a value
+	friend cyMatrix2f operator*(const float, const cyMatrix2f&); ///< multiple matrix by a value
+	friend cyMatrix2f Inverse(cyMatrix2f& m)
+	{
+		return m.GetInverse();
+	} ///< return the inverse of the matrix
+	friend cyPoint2f operator*(const cyPoint2f&, const cyMatrix2f&);	///< pre-multiply with a 3D point
 
 public:
 
@@ -41,49 +43,107 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	///@name Constructors
-	cyMatrix2f() {}	///< Default constructor
-	cyMatrix2f( const cyMatrix2f &matrix ) { for ( int i=0; i<4; i++ ) data[i]=matrix.data[i]; } ///< Copy constructor
+	cyMatrix2f()
+	{
+	} ///< Default constructor
+	cyMatrix2f(const cyMatrix2f& matrix)
+	{
+		for (int i = 0; i < 4; i++)
+			data[i] = matrix.data[i];
+	} ///< Copy constructor
 
 
 	//////////////////////////////////////////////////////////////////////////
 	///@name Set & Get Methods
 
 	/// Set all the values as zero
-	void Zero() { for ( int i=0; i<4; i++ ) data[ i ] = 0; }
+	void Zero()
+	{
+		for (int i = 0; i < 4; i++)
+			data[i] = 0;
+	}
+
 	/// Set Matrix using an array of 4 values
-	void Set( const float *array ) { for ( int i=0; i<4; i++ ) data[ i ] = array[ i ]; } 
+	void Set(const float* array)
+	{
+		for (int i = 0; i < 4; i++)
+			data[i] = array[i];
+	}
+
 	/// Set Matrix using x,y,z vectors and coordinate center
-	void Set( const cyPoint2f &x, const cyPoint2f &y );
+	void Set(const cyPoint2f& x, const cyPoint2f& y);
+
 	/// Converts the matrix to an identity matrix
-	void SetIdentity() { data[0]=1; data[1]=0; data[2]=0; data[3]=1; }
+	void SetIdentity()
+	{
+		data[0] = 1;
+		data[1] = 0;
+		data[2] = 0;
+		data[3] = 1;
+	}
+
 	/// Set a rotation matrix by angle theta
-	void SetRotation( float theta );
+	void SetRotation(float theta);
 	/// Set a rotation matrix by cos and sin of angle theta
-	void SetRotation( float cosTheta, float sinTheta );
+	void SetRotation(float cosTheta, float sinTheta);
 
 	// Get Row and Column
-	cyPoint2f GetRow( int row ) const { return cyPoint2f( data[row], data[row+2] ); }
-	void	  GetRow( int row, cyPoint2f &p ) const { p.Set( data[row], data[row+1] ); }
-	void	  GetRow( int row, float *array ) const { array[0]=data[row]; array[1]=data[row+2]; }
-	cyPoint2f GetColumn( int col ) const { return cyPoint2f( &data[col*2] ); }
-	void	  GetColumn( int col, cyPoint2f &p ) const { p.Set( &data[col*2] ); }
-	void	  GetColumn( int col, float *array ) const { array[0]=data[col*2]; array[1]=data[col*2+1]; }
+	cyPoint2f GetRow(int row) const
+	{
+		return cyPoint2f(data[row], data[row + 2]);
+	}
+
+	void GetRow(int row, cyPoint2f& p) const
+	{
+		p.Set(data[row], data[row + 1]);
+	}
+
+	void GetRow(int row, float* array) const
+	{
+		array[0] = data[row];
+		array[1] = data[row + 2];
+	}
+
+	cyPoint2f GetColumn(int col) const
+	{
+		return cyPoint2f(&data[col * 2]);
+	}
+
+	void GetColumn(int col, cyPoint2f& p) const
+	{
+		p.Set(&data[col * 2]);
+	}
+
+	void GetColumn(int col, float* array) const
+	{
+		array[0] = data[col * 2];
+		array[1] = data[col * 2 + 1];
+	}
 
 
 	//////////////////////////////////////////////////////////////////////////
 	///@name Overloaded Operators
 
-	const cyMatrix2f &operator=( const cyMatrix2f & );	///< assign matrix
+	const cyMatrix2f& operator=(const cyMatrix2f&); ///< assign matrix
 
 	// Overloaded comparison operators 
-	bool operator==( const cyMatrix2f & ) const;		///< compare equal
-	bool operator!=( const cyMatrix2f &right ) const { return ! ( *this == right ); } ///< compare not equal
+	bool operator==(const cyMatrix2f&) const; ///< compare equal
+	bool operator!=(const cyMatrix2f& right) const
+	{
+		return ! (*this == right);
+	} ///< compare not equal
 
 	// Overloaded subscript operators
-	float& operator()( int row, int column );					///< subscript operator
-	float& operator[](int i) { return data[i]; }				///< subscript operator
-	const float& operator()( int row, int column ) const;		///< constant subscript operator
-	const float& operator[](int i) const { return data[i]; }	///< constant subscript operator
+	float& operator()(int row, int column); ///< subscript operator
+	float& operator[](int i)
+	{
+		return data[i];
+	} ///< subscript operator
+	const float& operator()(int row, int column) const; ///< constant subscript operator
+	const float& operator[](int i) const
+	{
+		return data[i];
+	}	///< constant subscript operator
 	
 	// Unary operators
 	cyMatrix2f operator - () const;	///< negative matrix
@@ -113,8 +173,17 @@ public:
 	void SetTranspose();			///< Transpose this matrix
 	cyMatrix2f Transpose() const;	///< return Transpose of this matrix
 	void Invert();					///< Invert this matrix
-	void GetInverse( cyMatrix2f &inverse ) const { inverse=*this; inverse.Invert(); }	///< Get the inverse of this matrix
-	cyMatrix2f GetInverse() const { cyMatrix2f inv(*this); inv.Invert(); return inv; }	///< Get the inverse of this matrix
+	void GetInverse(cyMatrix2f& inverse) const
+	{
+		inverse = *this;
+		inverse.Invert();
+	} ///< Get the inverse of this matrix
+	cyMatrix2f GetInverse() const
+	{
+		cyMatrix2f inv(*this);
+		inv.Invert();
+		return inv;
+	}	///< Get the inverse of this matrix
 
 	//////////////////////////////////////////////////////////////////////////
 
